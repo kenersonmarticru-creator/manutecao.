@@ -14,7 +14,7 @@
 // 6. Copie a URL gerada e cole em APPS_SCRIPT_URL no checklist-painel.html
 // ============================================================
 
-var FOLDER_ID = 'COLE_O_ID_DA_PASTA_AQUI';
+var FOLDER_ID = '1YtGUigbCB0IHdYNmZermWwZrN6AkRJOz';
 
 function doPost(e) {
   try {
