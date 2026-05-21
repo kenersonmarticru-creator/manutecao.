@@ -729,7 +729,7 @@ async function abrirImpressao(jsonStr) {
                 .eq('numero', item.numero_maquina)
                 .maybeSingle();
             equipamento = data || null;
-        } catch(e) { /* silently ignore */ }
+        } catch(e) { console.warn('[equipamento lookup]', e); }
     }
 
     const dt    = new Date(item.created_at || `${item.data}T${item.hora||'00:00'}`);
@@ -774,18 +774,18 @@ async function abrirImpressao(jsonStr) {
             <td class="info-label">Situação</td>
             <td class="info-value"><span class="print-situacao-box ${situacaoClass}">${situacaoText}</span></td>
         </tr>
-        ${equipamento ? `<tr>
+        <tr>
             <td class="info-label">Nome Equipamento</td>
-            <td class="info-value" colspan="3"><strong>${equipamento.nome || '–'}</strong></td>
+            <td class="info-value" colspan="3"><strong>${equipamento?.nome || '–'}</strong></td>
             <td class="info-label">Tipo</td>
-            <td class="info-value">${equipamento.tipo || '–'}</td>
+            <td class="info-value">${equipamento?.tipo || '–'}</td>
         </tr>
         <tr>
             <td class="info-label">Nº de Série</td>
-            <td class="info-value">${equipamento.numero_serie || '–'}</td>
+            <td class="info-value">${equipamento?.numero_serie || '–'}</td>
             <td class="info-label">Nº Patrimônio</td>
-            <td class="info-value" colspan="3">${equipamento.numero_patrimonio || '–'}</td>
-        </tr>` : ''}
+            <td class="info-value" colspan="3">${equipamento?.numero_patrimonio || '–'}</td>
+        </tr>
     </table>`;
 
     corpo += '<div class="print-section-title">RESULTADOS DA INSPEÇÃO</div>';
