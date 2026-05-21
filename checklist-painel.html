@@ -13,41 +13,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* ── RESUMO POR MÁQUINA NO SIDEBAR ── */
-        .sidebar-machines-section { margin-top:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px; }
-        .sidebar-machines-header { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; cursor:pointer; border-radius:8px; transition:background 0.2s; user-select:none; }
-        .sidebar-machines-header:hover { background:rgba(255,255,255,0.07); }
-        .sidebar-machines-header-left { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.7px; }
-        .sidebar-machines-header-left .icon { font-size:15px; }
-        .sidebar-machines-chevron { font-size:10px; color:#64748b; transition:transform 0.3s ease; line-height:1; }
-        .sidebar-machines-chevron.open { transform:rotate(180deg); }
-        .sidebar-machines-list { overflow:hidden; max-height:0; transition:max-height 0.35s ease; }
-        .sidebar-machines-list.open { max-height:2000px; }
-        .machine-card { margin:4px 8px; border-radius:10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); overflow:hidden; cursor:pointer; transition:background 0.2s,border-color 0.2s; }
-        .machine-card:hover { background:rgba(255,255,255,0.09); border-color:rgba(255,255,255,0.14); }
-        .machine-card.active-machine { background:rgba(99,102,241,0.15); border-color:rgba(99,102,241,0.4); }
-        .machine-card-header { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; }
-        .machine-card-name { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:#e2e8f0; }
-        .machine-card-name .machine-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; flex-shrink:0; }
-        .machine-card-name .machine-dot.has-issues { background:#f59e0b; }
-        .machine-badge-count { font-size:11px; font-weight:700; padding:2px 7px; border-radius:20px; background:rgba(255,255,255,0.1); color:#94a3b8; min-width:26px; text-align:center; }
-        .machine-card-chevron { font-size:9px; color:#64748b; transition:transform 0.25s ease; margin-left:6px; }
-        .machine-card-chevron.open { transform:rotate(180deg); }
-        .machine-card-body { overflow:hidden; max-height:0; transition:max-height 0.3s ease; }
-        .machine-card-body.open { max-height:400px; }
-        .machine-card-stats { padding:0 12px 10px; display:flex; flex-direction:column; gap:5px; }
-        .machine-stat-row { display:flex; align-items:center; justify-content:space-between; font-size:12px; }
-        .machine-stat-label { color:#64748b; display:flex; align-items:center; gap:5px; }
-        .machine-stat-value { font-weight:600; color:#cbd5e1; }
-        .machine-stat-value.green { color:#4ade80; }
-        .machine-stat-value.amber { color:#fbbf24; }
-        .machine-stat-value.red   { color:#f87171; }
-        .machine-last-check { font-size:11px; color:#475569; padding:0 12px 8px; border-top:1px solid rgba(255,255,255,0.05); margin-top:4px; padding-top:6px; }
-        .machine-filter-btn { display:block; width:calc(100% - 24px); margin:2px 12px 8px; padding:5px; font-size:11px; font-weight:600; text-align:center; border-radius:6px; background:rgba(99,102,241,0.2); color:#818cf8; border:1px solid rgba(99,102,241,0.3); cursor:pointer; transition:background 0.2s; }
-        .machine-filter-btn:hover { background:rgba(99,102,241,0.35); }
-        .machine-issues-badge { font-size:10px; font-weight:700; padding:2px 6px; border-radius:20px; background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
-        .sidebar-machines-loading { padding:12px 16px; font-size:12px; color:#475569; text-align:center; }
-
         /* ── BOTÃO IMPRIMIR NA TABELA ── */
         .btn-print {
             background: #0f172a;
@@ -163,18 +128,9 @@
         <a href="usuarios.html" class="menu-item" id="menuUsuarios"><span class="menu-icon">👥</span><span>Usuários</span></a>
     </div>
 
-    <!-- RESUMO POR MÁQUINA -->
-    <div class="sidebar-machines-section">
-        <div class="sidebar-machines-header" id="machinesSidebarToggle" onclick="toggleMachinesSidebar()">
-            <div class="sidebar-machines-header-left">
-                <span class="icon">🏭</span>
-                <span>Resumo por Máquina</span>
-            </div>
-            <span class="sidebar-machines-chevron" id="machinesSidebarChevron">▼</span>
-        </div>
-        <div class="sidebar-machines-list" id="machinesSidebarList">
-            <div class="sidebar-machines-loading" id="machinesSidebarLoading">⏳ Carregando...</div>
-        </div>
+    <div class="menu-section">
+        <div class="menu-section-title">Equipamentos</div>
+        <a href="equipamentos.html" class="menu-item"><span class="menu-icon">🏭</span><span>Resumo por Máquina</span></a>
     </div>
 </div>
 
@@ -340,78 +296,6 @@ function closeSidebar() {
     ['hamburgerBtn','sidebar','sidebarOverlay'].forEach(id => document.getElementById(id).classList.remove('active'));
 }
 
-/* ── RESUMO MÁQUINAS SIDEBAR ── */
-let machinesSidebarOpen = false;
-function toggleMachinesSidebar() {
-    machinesSidebarOpen = !machinesSidebarOpen;
-    document.getElementById('machinesSidebarList').classList.toggle('open', machinesSidebarOpen);
-    document.getElementById('machinesSidebarChevron').classList.toggle('open', machinesSidebarOpen);
-}
-
-function buildMachinesSidebar(checklists) {
-    const container = document.getElementById('machinesSidebarList');
-    const map = {};
-    checklists.forEach(item => {
-        const maq = item.numero_maquina || '(sem nº)';
-        if (!map[maq]) map[maq] = { total:0, problemas:0, ok:0, ultimo:null };
-        map[maq].total++;
-        if ((item.total_problemas || 0) > 0) map[maq].problemas++;
-        else map[maq].ok++;
-        const dt = new Date(item.created_at || item.data);
-        if (!map[maq].ultimo || dt > new Date(map[maq].ultimo)) map[maq].ultimo = item.created_at || item.data;
-    });
-    const maquinas = Object.keys(map).sort();
-    if (!maquinas.length) { container.innerHTML = '<div class="sidebar-machines-loading">Nenhuma máquina.</div>'; return; }
-    let html = '';
-    maquinas.forEach((maq, idx) => {
-        const d = map[maq];
-        const taxaOk = d.total ? Math.round((d.ok / d.total) * 100) : 0;
-        const hasIssues = d.problemas > 0;
-        const dotClass = hasIssues ? 'machine-dot has-issues' : 'machine-dot';
-        const lastDt = d.ultimo ? new Date(d.ultimo).toLocaleDateString('pt-BR') : '–';
-        html += `<div class="machine-card" id="mcard-${idx}">
-            <div class="machine-card-header" onclick="toggleMachineCard(${idx})">
-                <div class="machine-card-name">
-                    <span class="${dotClass}"></span>
-                    <span>Máq. ${maq}</span>
-                    ${hasIssues ? `<span class="machine-issues-badge">⚠️ ${d.problemas}</span>` : ''}
-                </div>
-                <div style="display:flex;align-items:center;gap:4px">
-                    <span class="machine-badge-count">${d.total}</span>
-                    <span class="machine-card-chevron" id="mcard-chev-${idx}">▼</span>
-                </div>
-            </div>
-            <div class="machine-card-body" id="mcard-body-${idx}">
-                <div class="machine-card-stats">
-                    <div class="machine-stat-row"><span class="machine-stat-label">✅ Sem problemas</span><span class="machine-stat-value green">${d.ok}</span></div>
-                    <div class="machine-stat-row"><span class="machine-stat-label">⚠️ Com problemas</span><span class="machine-stat-value ${d.problemas > 0 ? 'amber' : ''}">${d.problemas}</span></div>
-                    <div class="machine-stat-row"><span class="machine-stat-label">📊 Taxa OK</span><span class="machine-stat-value ${taxaOk>=80?'green':taxaOk>=50?'amber':'red'}">${taxaOk}%</span></div>
-                </div>
-                <div class="machine-last-check">🕒 Última inspeção: ${lastDt}</div>
-                <button class="machine-filter-btn" onclick="filtrarPorMaquina('${maq}')">🔍 Ver apenas esta máquina</button>
-            </div>
-        </div>`;
-    });
-    container.innerHTML = html;
-}
-
-function toggleMachineCard(idx) {
-    const body = document.getElementById(`mcard-body-${idx}`);
-    const chev = document.getElementById(`mcard-chev-${idx}`);
-    const card = document.getElementById(`mcard-${idx}`);
-    const isOpen = body.classList.contains('open');
-    body.classList.toggle('open', !isOpen);
-    chev.classList.toggle('open', !isOpen);
-    card.classList.toggle('active-machine', !isOpen);
-}
-
-function filtrarPorMaquina(maq) {
-    document.getElementById('filtroMaquina').value = maq;
-    aplicarFiltros();
-    closeSidebar();
-    document.querySelector('.card')?.scrollIntoView({ behavior:'smooth', block:'start' });
-}
-
 /* ── LOAD ── */
 async function loadChecklists() {
     document.getElementById('listaChecklists').innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
@@ -425,7 +309,6 @@ async function loadChecklists() {
     filteredChecklists = [...allChecklists];
     calcStats();
     popularFiltros();
-    buildMachinesSidebar(allChecklists);
     renderTabela(filteredChecklists);
 }
 
@@ -833,9 +716,21 @@ document.getElementById('modalDetalhes').addEventListener('click', e => {
 /* ═══════════════════════════════════════════
    IMPRESSÃO — abre em nova janela limpa
 ═══════════════════════════════════════════ */
-function abrirImpressao(jsonStr) {
+async function abrirImpressao(jsonStr) {
     const item = JSON.parse(jsonStr);
     fecharModal();
+
+    // Busca dados do equipamento no Supabase
+    let equipamento = null;
+    if (item.numero_maquina) {
+        try {
+            const { data } = await db.from('equipamentos')
+                .select('*')
+                .eq('numero', item.numero_maquina)
+                .maybeSingle();
+            equipamento = data || null;
+        } catch(e) { /* silently ignore */ }
+    }
 
     const dt    = new Date(item.created_at || `${item.data}T${item.hora||'00:00'}`);
     const dtStr = dt.toLocaleString('pt-BR');
@@ -879,6 +774,18 @@ function abrirImpressao(jsonStr) {
             <td class="info-label">Situação</td>
             <td class="info-value"><span class="print-situacao-box ${situacaoClass}">${situacaoText}</span></td>
         </tr>
+        ${equipamento ? `<tr>
+            <td class="info-label">Nome Equipamento</td>
+            <td class="info-value" colspan="3"><strong>${equipamento.nome || '–'}</strong></td>
+            <td class="info-label">Tipo</td>
+            <td class="info-value">${equipamento.tipo || '–'}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Nº de Série</td>
+            <td class="info-value">${equipamento.numero_serie || '–'}</td>
+            <td class="info-label">Nº Patrimônio</td>
+            <td class="info-value" colspan="3">${equipamento.numero_patrimonio || '–'}</td>
+        </tr>` : ''}
     </table>`;
 
     corpo += '<div class="print-section-title">RESULTADOS DA INSPEÇÃO</div>';

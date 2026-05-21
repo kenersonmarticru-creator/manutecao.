@@ -35,3 +35,28 @@ ON storage.objects
 FOR DELETE
 TO authenticated
 USING (bucket_id = 'assinaturas');
+
+-- =============================================================
+-- TABELA: equipamentos (cadastro de máquinas/equipamentos)
+-- =============================================================
+CREATE TABLE IF NOT EXISTS equipamentos (
+    id                  uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    numero              text NOT NULL UNIQUE,
+    nome                text NOT NULL,
+    tipo                text,
+    numero_serie        text,
+    numero_patrimonio   text,
+    fabricante          text,
+    modelo              text,
+    ano                 integer,
+    observacoes         text,
+    created_at          timestamptz DEFAULT now(),
+    updated_at          timestamptz DEFAULT now()
+);
+
+-- Policy: leitura pública (ajuste conforme RLS desejado)
+ALTER TABLE equipamentos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Acesso total a equipamentos"
+ON equipamentos FOR ALL
+USING (true)
+WITH CHECK (true);
