@@ -483,7 +483,7 @@ function renderTabela(lista) {
         const fotoLink = item.foto_drive_url
             ? `<a href="${item.foto_drive_url}" target="_blank" title="Ver foto" style="color:#60a5fa;font-size:13px">📷</a>`
             : '<span style="color:#475569;font-size:11px">–</span>';
-        const assOperUrl = item.assinatura_operador_url || item.assinatura_drive_url;
+        const assOperUrl = item.assinatura_tecnico_url || item.assinatura_drive_url;
         const assLink = [
             assOperUrl ? `<a href="${assOperUrl}" target="_blank" title="Assinatura Operador" style="color:#a78bfa;font-size:13px">✍️Op</a>` : '',
             item.assinatura_supervisor_url ? `<a href="${item.assinatura_supervisor_url}" target="_blank" title="Assinatura Supervisor" style="color:#34d399;font-size:13px">✍️Sup</a>` : ''
@@ -580,7 +580,7 @@ function verDetalhes(jsonStr) {
     </div>`;
 
     // Foto e assinaturas
-    const assOperUrl = getDriveImgUrl(item.assinatura_operador_url) || getDriveImgUrl(item.assinatura_drive_url);
+    const assOperUrl = getDriveImgUrl(item.assinatura_tecnico_url) || getDriveImgUrl(item.assinatura_drive_url);
     if (item.foto_drive_url || assOperUrl || item.assinatura_supervisor_url) {
         html += '<div class="img-links-row">';
         if (item.foto_drive_url)
@@ -761,7 +761,7 @@ async function salvarAssinaturas(itemId) {
     ]);
 
     var update = {};
-    if (urlTecnico)    update.assinatura_operador_url   = urlTecnico;
+    if (urlTecnico)    update.assinatura_tecnico_url   = urlTecnico;
     if (urlSupervisor) update.assinatura_supervisor_url = urlSupervisor;
     var nomeSup = document.getElementById('modalNomeSupervisor')?.value.trim();
     if (nomeSup) update.nome_supervisor = nomeSup;
@@ -904,7 +904,7 @@ function abrirImpressao(jsonStr) {
     }
 
     const fotoImgUrl = getDriveImgUrl(item.foto_drive_url);
-    const assOperUrl = getDriveImgUrl(item.assinatura_operador_url) || getDriveImgUrl(item.assinatura_drive_url);
+    const assOperUrl = getDriveImgUrl(item.assinatura_tecnico_url) || getDriveImgUrl(item.assinatura_drive_url);
     const assSupUrl  = getDriveImgUrl(item.assinatura_supervisor_url) || null;
 
     if (fotoImgUrl) {
