@@ -736,11 +736,14 @@ async function uploadAssinatura(canvasId, prefixo) {
                         method: 'POST',
                         body: JSON.stringify({ image: base64, filename: filename })
                     });
-                    var json = await res.json();
+                    var text = await res.text();
+                    var json;
+                    try { json = JSON.parse(text); }
+                    catch (e) { console.error('[sig] resposta não-JSON:', text); resolve(null); return; }
                     if (json.ok) resolve(json.url);
-                    else { console.error('[sig]', json.error); resolve(null); }
+                    else { console.error('[sig] erro Apps Script:', json.error); resolve(null); }
                 } catch (err) {
-                    console.error('[sig]', err); resolve(null);
+                    console.error('[sig] fetch falhou:', err); resolve(null);
                 }
             };
             reader.readAsDataURL(blob);
@@ -901,8 +904,8 @@ function abrirImpressao(jsonStr) {
     }
 
     const fotoImgUrl = getDriveImgUrl(item.foto_drive_url);
-    const assOperUrl = item.assinatura_operador_url || getDriveImgUrl(item.assinatura_drive_url);
-    const assSupUrl  = item.assinatura_supervisor_url || null;
+    const assOperUrl = getDriveImgUrl(item.assinatura_operador_url) || getDriveImgUrl(item.assinatura_drive_url);
+    const assSupUrl  = getDriveImgUrl(item.assinatura_supervisor_url) || null;
 
     if (fotoImgUrl) {
         corpo += `<div class="print-section-title" style="margin-top:14px">REGISTROS FOTOGRÁFICOS</div>
