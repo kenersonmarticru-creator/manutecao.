@@ -241,7 +241,7 @@ let editingId       = null;
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', async () => {
-    await checkAuth();
+    checkAuth();
     setupNav();
     await Promise.all([loadEquipamentos(), loadChecklists()]);
     calcStats();
@@ -249,12 +249,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderLista();
 });
 
-async function checkAuth() {
-    const session = await getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
-    document.getElementById('userName').textContent  = session.user?.nome || session.user?.login || '–';
-    document.getElementById('userBadge').textContent = session.user?.cargo || session.user?.papel || '–';
-    document.getElementById('btnLogout').onclick = () => { logout(); };
+function checkAuth() {
+    const user = protectPage();
+    if (!user) return;
+    document.getElementById('userName').textContent  = user.nome  || user.login || '–';
+    document.getElementById('userBadge').textContent = user.perfil || '–';
+    document.getElementById('btnLogout').onclick = handleLogout;
 }
 
 function setupNav() {
