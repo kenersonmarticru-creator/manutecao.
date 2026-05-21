@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipamentos — Sistema de Manutenção</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/base.css">
+    <style>
+        .equip-status-dot {
+            width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0;
+        }
+        .dot-ok      { background: #10b981; }
+        .dot-warning { background: #f59e0b; }
+        .dot-none    { background: #94a3b8; }
+        .taxa-bar-wrap { display:flex; align-items:center; gap:8px; }
+        .taxa-bar { height:6px; border-radius:3px; background:#e2e8f0; flex:1; overflow:hidden; }
+        .taxa-bar-fill { height:100%; border-radius:3px; transition:width 0.4s; }
+        .taxa-bar-fill.green  { background:#10b981; }
+        .taxa-bar-fill.amber  { background:#f59e0b; }
+        .taxa-bar-fill.red    { background:#ef4444; }
+        .equip-card {
+            background: white; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 20px; transition: all 0.2s; cursor: default;
+        }
+        .equip-card:hover { border-color: #6366f1; box-shadow: 0 4px 20px rgba(99,102,241,0.1); transform: translateY(-2px); }
+        .equip-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
+        .equip-card-title  { font-size:15px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; }
+        .equip-card-num    { font-size:11px; font-weight:700; background:#e0e7ff; color:#3730a3; padding:3px 8px; border-radius:20px; }
+        .equip-card-tipo   { font-size:11px; color:#64748b; margin-top:3px; }
+        .equip-card-body   { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+        .equip-field       { display:flex; flex-direction:column; gap:2px; }
+        .equip-field-label { font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .equip-field-value { font-size:13px; color:#334155; font-weight:500; font-family: 'Courier New', monospace; }
+        .equip-card-stats  { border-top:1px solid #f1f5f9; padding-top:12px; }
+        .equip-stat-row    { display:flex; align-items:center; justify-content:space-between; font-size:12px; margin-bottom:6px; }
+        .equip-stat-label  { color:#64748b; }
+        .equip-stat-value  { font-weight:700; color:#1e293b; }
+        .equip-actions     { display:flex; gap:6px; margin-top:12px; }
+        .grid-equipamentos { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:16px; }
+        .tab-nav { display:flex; gap:4px; background:#f1f5f9; padding:4px; border-radius:10px; margin-bottom:20px; width:fit-content; }
+        .tab-btn {
+            padding:8px 20px; border:none; background:transparent; border-radius:7px;
+            font-size:13px; font-weight:600; color:#64748b; cursor:pointer; transition:all 0.2s;
+        }
+        .tab-btn.active { background:white; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
+        .empty-equip { text-align:center; padding:56px 20px; color:#94a3b8; }
+        .empty-equip .icon { font-size:48px; margin-bottom:12px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-left">
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <h1>🏭 Equipamentos</h1>
+    </div>
+    <div class="user-info">
+        <span class="user-name" id="userName">Usuário</span>
+        <span class="user-badge" id="userBadge">Cargo</span>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header"><h2>Menu de Navegação</h2><p>Selecione uma opção</p></div>
+    <div class="menu-section">
+        <div class="menu-section-title">Principal</div>
+        <a href="menu.html" class="menu-item"><span class="menu-icon">🏠</span><span>Dashboard</span></a>
+    </div>
+    <div class="menu-section">
+        <div class="menu-section-title">Check-list</div>
+        <a href="checklist-painel.html" class="menu-item"><span class="menu-icon">✅</span><span>Painel Check-lists</span></a>
+        <a href="checklist.html" class="menu-item"><span class="menu-icon">📝</span><span>Novo Check-list</span></a>
+    </div>
+    <div class="menu-section">
+        <div class="menu-section-title">Gestão</div>
+        <a href="equipamentos.html" class="menu-item active"><span class="menu-icon">🏭</span><span>Equipamentos</span></a>
+        <a href="usuarios.html" class="menu-item"><span class="menu-icon">👥</span><span>Usuários</span></a>
+        <a href="ocorrencias.html" class="menu-item"><span class="menu-icon">📋</span><span>Ocorrências</span></a>
+    </div>
+</div>
+
+<div class="main-container">
+    <!-- HERO -->
+    <div class="hero-strip">
+        <div>
+            <h2>🏭 Gestão de Equipamentos</h2>
+            <p>Cadastro, histórico de inspeções e indicadores por máquina</p>
+        </div>
+        <div class="hero-actions">
+            <button class="btn-hero" onclick="showTab('cadastro')">➕ Cadastrar Equipamento</button>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+        <div class="stat-card"><div class="stat-number" id="statTotal">–</div><div class="stat-label">Equipamentos</div></div>
+        <div class="stat-card"><div class="stat-number" id="statComCheck">–</div><div class="stat-label">Com Check-list</div></div>
+        <div class="stat-card"><div class="stat-number" id="statProblemas">–</div><div class="stat-label">Com Problemas</div></div>
+        <div class="stat-card"><div class="stat-number" id="statSemCheck">–</div><div class="stat-label">Sem Check-list</div></div>
+    </div>
+
+    <div id="alertEquip"></div>
+
+    <!-- TABS -->
+    <div class="tab-nav">
+        <button class="tab-btn active" id="tab-resumo-btn" onclick="showTab('resumo')">📊 Resumo por Máquina</button>
+        <button class="tab-btn" id="tab-cadastro-btn" onclick="showTab('cadastro')">➕ Cadastrar / Editar</button>
+        <button class="tab-btn" id="tab-lista-btn" onclick="showTab('lista')">📋 Lista de Equipamentos</button>
+    </div>
+
+    <!-- ABA: RESUMO -->
+    <div class="tab-content active" id="tab-resumo">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <h2 style="margin:0">📊 Resumo por Máquina</h2>
+                <input class="search-input" style="max-width:240px" placeholder="🔍 Filtrar máquina..." id="filtroResumo" oninput="renderResumo()">
+            </div>
+            <div id="gridResumo" class="grid-equipamentos">
+                <div class="loading"><div class="spinner"></div><p>Carregando...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA: CADASTRO -->
+    <div class="tab-content" id="tab-cadastro">
+        <div class="card">
+            <h2 id="formTitle">➕ Cadastrar Equipamento</h2>
+            <div id="alertForm"></div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Número da Máquina *</label>
+                    <input type="text" id="fNumero" placeholder="Ex: 103">
+                </div>
+                <div class="form-group">
+                    <label>Nome do Equipamento *</label>
+                    <input type="text" id="fNome" placeholder="Ex: Empilhadeira Elétrica">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tipo de Equipamento *</label>
+                    <select id="fTipo">
+                        <option value="">Selecione...</option>
+                        <option>Empilhadeira Elétrica</option>
+                        <option>Empilhadeira a Combustão</option>
+                        <option>Empilhadeira Retrátil</option>
+                        <option>Paleteira Elétrica</option>
+                        <option>Paleteira Manual</option>
+                        <option>Transpaleteira</option>
+                        <option>Rebocador</option>
+                        <option>Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Número de Série</label>
+                    <input type="text" id="fNumeroSerie" placeholder="Ex: SN-2024-00123">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Número de Patrimônio</label>
+                    <input type="text" id="fPatrimonio" placeholder="Ex: PAT-0042">
+                </div>
+                <div class="form-group">
+                    <label>Fabricante</label>
+                    <input type="text" id="fFabricante" placeholder="Ex: Linde, Toyota, Hyster...">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <input type="text" id="fModelo" placeholder="Ex: E16C">
+                </div>
+                <div class="form-group">
+                    <label>Ano de Fabricação</label>
+                    <input type="number" id="fAno" placeholder="Ex: 2020" min="1990" max="2099">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Observações</label>
+                <textarea id="fObs" placeholder="Informações adicionais sobre o equipamento..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:4px">
+                <button class="btn" id="btnSalvarEquip" onclick="salvarEquipamento()">💾 Salvar Equipamento</button>
+                <button class="btn btn-secondary" onclick="limparForm()">✕ Limpar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA: LISTA -->
+    <div class="tab-content" id="tab-lista">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <h2 style="margin:0">📋 Equipamentos Cadastrados</h2>
+                <input class="search-input" style="max-width:240px" placeholder="🔍 Pesquisar..." id="filtroLista" oninput="renderLista()">
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Nº Série</th>
+                            <th>Patrimônio</th>
+                            <th>Fabricante / Modelo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyLista">
+                        <tr><td colspan="7" class="loading">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+let allEquipamentos = [];
+let allChecklists   = [];
+let editingId       = null;
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
+    setupNav();
+    await Promise.all([loadEquipamentos(), loadChecklists()]);
+    calcStats();
+    renderResumo();
+    renderLista();
+});
+
+async function checkAuth() {
+    const session = await getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    document.getElementById('userName').textContent  = session.user?.nome || session.user?.login || '–';
+    document.getElementById('userBadge').textContent = session.user?.cargo || session.user?.papel || '–';
+    document.getElementById('btnLogout').onclick = () => { logout(); };
+}
+
+function setupNav() {
+    const hb  = document.getElementById('hamburgerBtn');
+    const sb  = document.getElementById('sidebar');
+    const ov  = document.getElementById('sidebarOverlay');
+    hb.addEventListener('click', () => { hb.classList.toggle('active'); sb.classList.toggle('active'); ov.classList.toggle('active'); });
+    ov.addEventListener('click', () => { hb.classList.remove('active'); sb.classList.remove('active'); ov.classList.remove('active'); });
+}
+
+// ── DATA ──
+async function loadEquipamentos() {
+    try {
+        const { data, error } = await db.from('equipamentos').select('*').order('numero');
+        if (error) throw error;
+        allEquipamentos = data || [];
+    } catch(e) { allEquipamentos = []; }
+}
+
+async function loadChecklists() {
+    try {
+        const { data, error } = await db.from('checklist_diario')
+            .select('id,numero_maquina,total_problemas,created_at,data')
+            .order('created_at', { ascending: false })
+            .limit(500);
+        if (error) throw error;
+        allChecklists = data || [];
+    } catch(e) { allChecklists = []; }
+}
+
+// ── STATS ──
+function calcStats() {
+    const numeros = new Set(allChecklists.map(c => c.numero_maquina).filter(Boolean));
+    const comProblemas = [...numeros].filter(n => allChecklists.some(c => c.numero_maquina === n && (c.total_problemas||0) > 0));
+    document.getElementById('statTotal').textContent     = allEquipamentos.length;
+    document.getElementById('statComCheck').textContent  = numeros.size;
+    document.getElementById('statProblemas').textContent = comProblemas.length;
+    document.getElementById('statSemCheck').textContent  = allEquipamentos.filter(e => !numeros.has(String(e.numero))).length;
+}
+
+// ── TABS ──
+function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('tab-' + name + '-btn').classList.add('active');
+}
+
+// ── RESUMO ──
+function buildMachineMap() {
+    const map = {};
+    allChecklists.forEach(c => {
+        const k = String(c.numero_maquina || '');
+        if (!k) return;
+        if (!map[k]) map[k] = { total:0, problemas:0, ok:0, ultimo:null };
+        map[k].total++;
+        if ((c.total_problemas||0) > 0) map[k].problemas++;
+        else map[k].ok++;
+        const dt = new Date(c.created_at || c.data);
+        if (!map[k].ultimo || dt > new Date(map[k].ultimo)) map[k].ultimo = c.created_at || c.data;
+    });
+    return map;
+}
+
+function renderResumo() {
+    const filtro = (document.getElementById('filtroResumo')?.value || '').toLowerCase();
+    const map    = buildMachineMap();
+    const grid   = document.getElementById('gridResumo');
+
+    // Mescla equipamentos cadastrados com máquinas dos checklists
+    const numeros = new Set([
+        ...allEquipamentos.map(e => String(e.numero)),
+        ...Object.keys(map)
+    ]);
+
+    let items = [...numeros].sort().filter(n => !filtro || n.toLowerCase().includes(filtro) ||
+        (allEquipamentos.find(e => String(e.numero) === n)?.nome || '').toLowerCase().includes(filtro));
+
+    if (!items.length) {
+        grid.innerHTML = '<div class="empty-equip"><div class="icon">🏭</div><p>Nenhum equipamento encontrado.</p></div>';
+        return;
+    }
+
+    grid.innerHTML = items.map(num => {
+        const eq  = allEquipamentos.find(e => String(e.numero) === num);
+        const st  = map[num] || { total:0, problemas:0, ok:0, ultimo:null };
+        const pct = st.total ? Math.round((st.ok / st.total) * 100) : null;
+        const hasIssues = st.problemas > 0;
+        const dotClass  = st.total === 0 ? 'dot-none' : (hasIssues ? 'dot-warning' : 'dot-ok');
+        const barClass  = pct === null ? '' : pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
+        const lastDt    = st.ultimo ? new Date(st.ultimo).toLocaleDateString('pt-BR') : '–';
+
+        return `<div class="equip-card">
+            <div class="equip-card-header">
+                <div>
+                    <div class="equip-card-title">
+                        <span class="equip-status-dot ${dotClass}"></span>
+                        Máq. ${num}
+                        <span class="equip-card-num">#${num}</span>
+                    </div>
+                    <div class="equip-card-tipo">${eq ? (eq.nome + (eq.tipo ? ' · ' + eq.tipo : '')) : '<em style="color:#94a3b8">Sem cadastro</em>'}</div>
+                </div>
+                ${eq ? `<button class="btn btn-small btn-secondary" onclick="editarEquipamento(${eq.id})" title="Editar">✏️</button>` : `<button class="btn btn-small" onclick="novoParaNumero('${num}')" title="Cadastrar">➕</button>`}
+            </div>
+            ${eq ? `<div class="equip-card-body">
+                <div class="equip-field"><span class="equip-field-label">Nº Série</span><span class="equip-field-value">${eq.numero_serie || '–'}</span></div>
+                <div class="equip-field"><span class="equip-field-label">Patrimônio</span><span class="equip-field-value">${eq.numero_patrimonio || '–'}</span></div>
+                ${eq.fabricante ? `<div class="equip-field"><span class="equip-field-label">Fabricante</span><span class="equip-field-value">${eq.fabricante}</span></div>` : ''}
+                ${eq.modelo ? `<div class="equip-field"><span class="equip-field-label">Modelo</span><span class="equip-field-value">${eq.modelo}</span></div>` : ''}
+            </div>` : ''}
+            <div class="equip-card-stats">
+                <div class="equip-stat-row"><span class="equip-stat-label">Total de inspeções</span><span class="equip-stat-value">${st.total}</span></div>
+                ${st.total ? `<div class="equip-stat-row"><span class="equip-stat-label">Com problemas</span><span class="equip-stat-value" style="color:${hasIssues?'#f59e0b':'#10b981'}">${st.problemas}</span></div>
+                <div class="equip-stat-row"><span class="equip-stat-label">Taxa OK</span><span class="equip-stat-value">${pct}%</span></div>
+                <div class="taxa-bar-wrap" style="margin-top:6px">
+                    <div class="taxa-bar"><div class="taxa-bar-fill ${barClass}" style="width:${pct}%"></div></div>
+                    <span style="font-size:11px;font-weight:700;color:#64748b;min-width:34px">${pct}%</span>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:6px">Última inspeção: ${lastDt}</div>` : '<div style="font-size:12px;color:#94a3b8">Sem inspeções registradas</div>'}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── LISTA ──
+function renderLista() {
+    const filtro = (document.getElementById('filtroLista')?.value || '').toLowerCase();
+    const tbody  = document.getElementById('tbodyLista');
+    const items  = allEquipamentos.filter(e =>
+        !filtro ||
+        String(e.numero).includes(filtro) ||
+        (e.nome||'').toLowerCase().includes(filtro) ||
+        (e.tipo||'').toLowerCase().includes(filtro) ||
+        (e.numero_serie||'').toLowerCase().includes(filtro) ||
+        (e.numero_patrimonio||'').toLowerCase().includes(filtro)
+    );
+    if (!items.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhum equipamento cadastrado.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = items.map(e => `<tr>
+        <td><span class="codigo-badge">${e.numero}</span></td>
+        <td><strong>${e.nome || '–'}</strong></td>
+        <td>${e.tipo || '–'}</td>
+        <td style="font-family:monospace;font-size:12px">${e.numero_serie || '–'}</td>
+        <td style="font-family:monospace;font-size:12px">${e.numero_patrimonio || '–'}</td>
+        <td>${[e.fabricante, e.modelo].filter(Boolean).join(' / ') || '–'}</td>
+        <td>
+            <div class="action-buttons">
+                <button class="btn btn-small" onclick="editarEquipamento(${e.id})">✏️ Editar</button>
+                <button class="btn btn-small btn-danger" onclick="excluirEquipamento(${e.id}, '${e.nome?.replace(/'/g,"\\'")||e.numero}')">🗑️</button>
+            </div>
+        </td>
+    </tr>`).join('');
+}
+
+// ── CRUD ──
+function novoParaNumero(num) {
+    showTab('cadastro');
+    document.getElementById('fNumero').value = num;
+}
+
+function limparForm() {
+    editingId = null;
+    document.getElementById('formTitle').textContent = '➕ Cadastrar Equipamento';
+    document.getElementById('btnSalvarEquip').textContent = '💾 Salvar Equipamento';
+    ['fNumero','fNome','fNumeroSerie','fPatrimonio','fFabricante','fModelo','fObs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('fTipo').value  = '';
+    document.getElementById('fAno').value   = '';
+}
+
+function editarEquipamento(id) {
+    const eq = allEquipamentos.find(e => e.id === id);
+    if (!eq) return;
+    editingId = id;
+    showTab('cadastro');
+    document.getElementById('formTitle').textContent      = '✏️ Editar Equipamento';
+    document.getElementById('btnSalvarEquip').textContent = '💾 Salvar Alterações';
+    document.getElementById('fNumero').value       = eq.numero       || '';
+    document.getElementById('fNome').value         = eq.nome         || '';
+    document.getElementById('fTipo').value         = eq.tipo         || '';
+    document.getElementById('fNumeroSerie').value  = eq.numero_serie || '';
+    document.getElementById('fPatrimonio').value   = eq.numero_patrimonio || '';
+    document.getElementById('fFabricante').value   = eq.fabricante   || '';
+    document.getElementById('fModelo').value       = eq.modelo       || '';
+    document.getElementById('fAno').value          = eq.ano          || '';
+    document.getElementById('fObs').value          = eq.observacoes  || '';
+    document.getElementById('fNumero').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+async function salvarEquipamento() {
+    const numero = document.getElementById('fNumero').value.trim();
+    const nome   = document.getElementById('fNome').value.trim();
+    const tipo   = document.getElementById('fTipo').value;
+    if (!numero || !nome || !tipo) {
+        showAlert('alertForm', 'Preencha Número, Nome e Tipo.', 'error');
+        return;
+    }
+    const btn = document.getElementById('btnSalvarEquip');
+    btn.disabled = true; btn.textContent = '⏳ Salvando...';
+
+    const payload = {
+        numero,
+        nome,
+        tipo,
+        numero_serie:       document.getElementById('fNumeroSerie').value.trim() || null,
+        numero_patrimonio:  document.getElementById('fPatrimonio').value.trim()  || null,
+        fabricante:         document.getElementById('fFabricante').value.trim()  || null,
+        modelo:             document.getElementById('fModelo').value.trim()      || null,
+        ano:                document.getElementById('fAno').value                 ? parseInt(document.getElementById('fAno').value) : null,
+        observacoes:        document.getElementById('fObs').value.trim()         || null,
+    };
+
+    try {
+        let error;
+        if (editingId) {
+            ({ error } = await db.from('equipamentos').update(payload).eq('id', editingId));
+        } else {
+            ({ error } = await db.from('equipamentos').insert([payload]));
+        }
+        if (error) throw error;
+        showAlert('alertForm', editingId ? 'Equipamento atualizado com sucesso!' : 'Equipamento cadastrado com sucesso!', 'success');
+        limparForm();
+        await loadEquipamentos();
+        calcStats();
+        renderResumo();
+        renderLista();
+    } catch(e) {
+        showAlert('alertForm', 'Erro ao salvar: ' + (e.message || e), 'error');
+    }
+    btn.disabled = false; btn.textContent = '💾 Salvar Equipamento';
+}
+
+async function excluirEquipamento(id, nome) {
+    if (!confirm(`Excluir o equipamento "${nome}"? Esta ação não pode ser desfeita.`)) return;
+    const { error } = await db.from('equipamentos').delete().eq('id', id);
+    if (error) { alert('Erro ao excluir: ' + error.message); return; }
+    await loadEquipamentos();
+    calcStats();
+    renderResumo();
+    renderLista();
+}
+
+function showAlert(containerId, msg, type) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = `<div class="alert alert-${type} show">${msg}</div>`;
+    setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+</script>
+</body>
+</html>

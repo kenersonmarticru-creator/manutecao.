@@ -39,45 +39,158 @@
             <h2>Menu de Navegação</h2>
             <p>Selecione uma opção abaixo</p>
         </div>
-        
 
         <div class="menu-section">
-            <div class="menu-section-title">Operação</div>
-            <a href="ocorrencias.html" style="text-decoration:none;">
-                <div class="menu-item" id="menuOcorrenciasExt">
-                    <span class="menu-icon">📋</span>
-                    <span>Central de Ocorrências</span>
-                </div>
-            </a>
-            <div class="menu-section-title">Manutenção</div>
-            <div class="menu-item" id="menuPredial">
-                <span class="menu-icon">🏢</span>
-                <span>Predial</span>
+            <div class="menu-section-title">Início</div>
+            <div class="menu-item active" id="menuDashboard">
+                <span class="menu-icon">🏠</span>
+                <span>Dashboard</span>
             </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Manutenção</div>
             <div class="menu-item" id="menuEquipamentos">
                 <span class="menu-icon">⚙️</span>
                 <span>Equipamentos</span>
+            </div>
+            <div class="menu-item" id="menuPredial">
+                <span class="menu-icon">🏢</span>
+                <span>Predial</span>
             </div>
             <div class="menu-item" id="menuOcorrencias">
                 <span class="menu-icon">📋</span>
                 <span>Ocorrências</span>
             </div>
         </div>
-        <a href="checklist-painel.html" class="menu-item"><span class="menu-icon">✅</span><span>Painel Check-lists</span></a>
-        <a href="checklist.html" class="menu-item"><span class="menu-icon">📝</span><span>Novo Check-list</span></a>
 
         <div class="menu-section">
-            <div class="menu-section-title">Gestão</div>
-            <a href="usuarios.html" class="menu-item" id="menuUsuarios">
+            <div class="menu-section-title">Check-list</div>
+            <a href="checklist-painel.html" class="menu-item"><span class="menu-icon">✅</span><span>Painel Check-lists</span></a>
+            <a href="checklist.html" class="menu-item"><span class="menu-icon">📝</span><span>Novo Check-list</span></a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Cadastros</div>
+            <a href="equipamentos.html" class="menu-item"><span class="menu-icon">🔧</span><span>Cadastro de Equipamentos</span></a>
+            <div class="menu-item" id="menuUsuarios">
                 <span class="menu-icon">👥</span>
                 <span>Usuários</span>
-            </a>
+            </div>
         </div>
-    
     </div>
 
     <div class="main-container">
-        <div class="content-section active" id="usuarios">
+        <!-- ── DASHBOARD ── -->
+        <div class="content-section active" id="dashboard">
+            <div class="hero-strip">
+                <div>
+                    <h2>🏠 Painel de Controle</h2>
+                    <p>Visão geral — selecione um módulo para acessar</p>
+                </div>
+            </div>
+
+            <div class="module-grid">
+                <!-- Manutenção de Equipamentos -->
+                <div class="module-card" onclick="goToSection('equipamentos', menuEquipamentos)">
+                    <div class="module-card-header">
+                        <div class="module-card-icon" style="background:#e0e7ff;">⚙️</div>
+                        <h3 class="module-card-title">Manutenção de Equipamentos</h3>
+                    </div>
+                    <p class="module-card-desc">Registre e gerencie manutenções preventivas e corretivas de equipamentos.</p>
+                    <div class="module-stats-row">
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashEquipTotal">–</div>
+                            <div class="module-stat-label">Total</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashEquipPendente" style="color:#f59e0b">–</div>
+                            <div class="module-stat-label">Pendente</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashEquipConcluido" style="color:#10b981">–</div>
+                            <div class="module-stat-label">Concluído</div>
+                        </div>
+                    </div>
+                    <div class="module-card-footer"><span class="module-card-btn">Acessar →</span></div>
+                </div>
+
+                <!-- Manutenção Predial -->
+                <div class="module-card" onclick="goToSection('predial', menuPredial)">
+                    <div class="module-card-header">
+                        <div class="module-card-icon" style="background:#dcfce7;">🏢</div>
+                        <h3 class="module-card-title">Manutenção Predial</h3>
+                    </div>
+                    <p class="module-card-desc">Controle manutenções de instalações, elétrica, hidráulica e estrutural.</p>
+                    <div class="module-stats-row">
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashPredialTotal">–</div>
+                            <div class="module-stat-label">Total</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashPredialPendente" style="color:#f59e0b">–</div>
+                            <div class="module-stat-label">Pendente</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashPredialUrgente" style="color:#ef4444">–</div>
+                            <div class="module-stat-label">Urgente</div>
+                        </div>
+                    </div>
+                    <div class="module-card-footer"><span class="module-card-btn">Acessar →</span></div>
+                </div>
+
+                <!-- Check-list de Empilhadeiras -->
+                <a href="checklist-painel.html" class="module-card">
+                    <div class="module-card-header">
+                        <div class="module-card-icon" style="background:#fef3c7;">✅</div>
+                        <h3 class="module-card-title">Check-list de Empilhadeiras</h3>
+                    </div>
+                    <p class="module-card-desc">Acompanhe inspeções diárias de empilhadeiras com assinaturas e fotos.</p>
+                    <div class="module-stats-row">
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashCheckTotal">–</div>
+                            <div class="module-stat-label">Total</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashCheckHoje">–</div>
+                            <div class="module-stat-label">Hoje</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashCheckProblemas" style="color:#ef4444">–</div>
+                            <div class="module-stat-label">Problemas</div>
+                        </div>
+                    </div>
+                    <div class="module-card-footer"><span class="module-card-btn">Acessar →</span></div>
+                </a>
+
+                <!-- Cadastro de Usuários -->
+                <div class="module-card" onclick="goToSection('usuarios', menuUsuarios)">
+                    <div class="module-card-header">
+                        <div class="module-card-icon" style="background:#ede9fe;">👥</div>
+                        <h3 class="module-card-title">Cadastro de Usuários</h3>
+                    </div>
+                    <p class="module-card-desc">Gerencie usuários, perfis de acesso e permissões do sistema.</p>
+                    <div class="module-stats-row">
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashUserTotal">–</div>
+                            <div class="module-stat-label">Total</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashUserAdmin">–</div>
+                            <div class="module-stat-label">Admin</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashUserAtivo" style="color:#10b981">–</div>
+                            <div class="module-stat-label">Ativos</div>
+                        </div>
+                    </div>
+                    <div class="module-card-footer"><span class="module-card-btn">Acessar →</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── USUARIOS ── -->
+        <div class="content-section" id="usuarios">
             <div class="card">
                 <h2>👤 Cadastrar Novo Usuário</h2>
                 <div id="alertUsuarios"></div>
@@ -805,63 +918,81 @@
             }
         });
 
+        function goToSection(sectionId, menuEl) {
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            if (menuEl) menuEl.classList.add('active');
+            showSection(sectionId);
+            if (window.innerWidth <= 768) closeSidebar();
+        }
+
+        async function loadDashboardStats() {
+            try {
+                const [equip, predial, check, users] = await Promise.all([
+                    db.from('manutencao_equipamentos').select('status'),
+                    db.from('manutencao_predial').select('status, prioridade'),
+                    db.from('checklist_diario').select('data_checklist, tem_problemas'),
+                    db.from('usuarios').select('perfil, ativo')
+                ]);
+
+                if (equip.data) {
+                    document.getElementById('dashEquipTotal').textContent = equip.data.length;
+                    document.getElementById('dashEquipPendente').textContent = equip.data.filter(r => r.status === 'pendente').length;
+                    document.getElementById('dashEquipConcluido').textContent = equip.data.filter(r => r.status === 'concluido').length;
+                }
+                if (predial.data) {
+                    document.getElementById('dashPredialTotal').textContent = predial.data.length;
+                    document.getElementById('dashPredialPendente').textContent = predial.data.filter(r => r.status === 'pendente').length;
+                    document.getElementById('dashPredialUrgente').textContent = predial.data.filter(r => r.prioridade === 'urgente').length;
+                }
+                if (check.data) {
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('dashCheckTotal').textContent = check.data.length;
+                    document.getElementById('dashCheckHoje').textContent = check.data.filter(r => r.data_checklist && r.data_checklist.startsWith(today)).length;
+                    document.getElementById('dashCheckProblemas').textContent = check.data.filter(r => r.tem_problemas).length;
+                }
+                if (users.data) {
+                    document.getElementById('dashUserTotal').textContent = users.data.length;
+                    document.getElementById('dashUserAdmin').textContent = users.data.filter(r => r.perfil === 'admin').length;
+                    document.getElementById('dashUserAtivo').textContent = users.data.filter(r => r.ativo !== false).length;
+                }
+            } catch(e) {
+                console.warn('[dashboard stats]', e);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const user = protectPage();
             if (user) {
                 document.getElementById('userName').textContent = user.nome;
                 document.getElementById('userBadge').textContent = user.perfil || 'Usuário';
-                
-                const menuUsuarios = document.getElementById('menuUsuarios');
-                const menuPredial = document.getElementById('menuPredial');
-                const menuEquipamentos = document.getElementById('menuEquipamentos');
+
+                const menuDashboard   = document.getElementById('menuDashboard');
+                const menuUsuarios    = document.getElementById('menuUsuarios');
+                const menuPredial     = document.getElementById('menuPredial');
+                const menuEquipamentos= document.getElementById('menuEquipamentos');
                 const menuOcorrencias = document.getElementById('menuOcorrencias');
-                
+
                 if (!hasPermission('perm_usuarios_visualizar')) {
                     menuUsuarios.style.display = 'none';
                 }
-                
                 if (!hasPermission('perm_predial_visualizar')) {
                     menuPredial.style.display = 'none';
                 }
-                
                 if (!hasPermission('perm_equipamentos_visualizar')) {
                     menuEquipamentos.style.display = 'none';
                 }
-                
                 const canViewOcorrencias = hasPermission('perm_predial_visualizar') || hasPermission('perm_equipamentos_visualizar');
                 if (!canViewOcorrencias) {
                     menuOcorrencias.style.display = 'none';
                 }
-                
-                let firstVisibleSection = null;
-                if (hasPermission('perm_usuarios_visualizar')) {
-                    firstVisibleSection = 'usuarios';
-                    menuUsuarios.classList.add('active');
-                } else if (hasPermission('perm_predial_visualizar')) {
-                    firstVisibleSection = 'predial';
-                    menuPredial.classList.add('active');
-                    menuUsuarios.classList.remove('active');
-                } else if (hasPermission('perm_equipamentos_visualizar')) {
-                    firstVisibleSection = 'equipamentos';
-                    menuEquipamentos.classList.add('active');
-                    menuUsuarios.classList.remove('active');
-                }
-                
-                if (firstVisibleSection) {
-                    showSection(firstVisibleSection);
-                }
-                
+
                 function setupMenuClick(menuElement, sectionName) {
                     menuElement.addEventListener('click', function() {
-                        document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-                        this.classList.add('active');
-                        showSection(sectionName);
-                        if (window.innerWidth <= 768) {
-                            closeSidebar();
-                        }
+                        goToSection(sectionName, this);
                     });
                 }
 
+                setupMenuClick(menuDashboard, 'dashboard');
                 setupMenuClick(menuUsuarios, 'usuarios');
                 setupMenuClick(menuPredial, 'predial');
                 setupMenuClick(menuEquipamentos, 'equipamentos');
@@ -875,15 +1006,14 @@
                 document.getElementById('formPermissoes').addEventListener('submit', salvarPermissoes);
                 document.getElementById('formEditPredial').addEventListener('submit', salvarEdicaoPredial);
                 document.getElementById('formEditEquip').addEventListener('submit', salvarEdicaoEquip);
-                
+
                 document.querySelectorAll('.modal').forEach(modal => {
                     modal.addEventListener('click', function(e) {
-                        if (e.target === this) {
-                            this.classList.remove('active');
-                        }
+                        if (e.target === this) this.classList.remove('active');
                     });
                 });
 
+                loadDashboardStats();
                 loadUsuarios();
                 loadManutencoesPrediais();
                 loadManutencoesEquipamentos();
