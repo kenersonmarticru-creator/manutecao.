@@ -52,7 +52,7 @@
         .empty-state { text-align:center; padding:48px 20px; color:#94a3b8; }
         .empty-state .icon { font-size:48px; margin-bottom:12px; }
 
-        @media(max-width:600px){ .maq-table th:nth-child(3), .maq-table td:nth-child(3) { display:none; } }
+        @media(max-width:768px){ .main { padding: 16px 12px; } .hero-strip { padding: 18px 16px !important; } }
     </style>
 </head>
 <body>
@@ -292,42 +292,48 @@ function renderTabela() {
         return;
     }
 
-    container.innerHTML = `
-        <table class="maq-table">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nome / Descrição</th>
-                    <th>Status</th>
-                    <th>Criado em</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+    if (window.innerWidth <= 768) {
+        container.innerHTML = lista.map(m => `<div class="cl-card">
+            <div class="cl-card-top">
+                <span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span>
+                <span class="cl-card-date">${formatarData(m.created_at)}</span>
+            </div>
+            <div class="cl-card-name">${esc(m.nome || '–')}</div>
+            <div class="cl-card-sub"><span class="badge-codigo">${esc(m.codigo)}</span></div>
+            <div class="cl-card-actions">
+                <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+                <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
+                    ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
+                </button>
+                <button class="btn-action btn-del" onclick="pedirExclusao('${m.id}', '${esc(m.codigo)}')">🗑️</button>
+            </div>
+        </div>`).join('');
+        return;
+    }
+
+    container.innerHTML = `<div class="table-container">
+        <table class="maq-table" style="min-width:0">
+            <thead><tr>
+                <th>Código</th><th>Nome / Descrição</th><th>Status</th><th>Criado em</th><th>Ações</th>
+            </tr></thead>
             <tbody>
                 ${lista.map(m => `
                     <tr>
                         <td><span class="badge-codigo">${esc(m.codigo)}</span></td>
                         <td>${esc(m.nome || '–')}</td>
-                        <td>
-                            <span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">
-                                ${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}
-                            </span>
-                        </td>
+                        <td><span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span></td>
                         <td>${formatarData(m.created_at)}</td>
-                        <td>
-                            <div class="actions-cell">
-                                <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
-                                <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}"
-                                        onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
-                                    ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
-                                </button>
-                                <button class="btn-action btn-del" onclick="pedirExclusao('${m.id}', '${esc(m.codigo)}')">🗑️</button>
-                            </div>
-                        </td>
+                        <td><div class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+                            <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
+                                ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
+                            </button>
+                            <button class="btn-action btn-del" onclick="pedirExclusao('${m.id}', '${esc(m.codigo)}')">🗑️</button>
+                        </div></td>
                     </tr>
                 `).join('')}
             </tbody>
-        </table>`;
+        </table></div>`;
 }
 
 /* ── NOVA MÁQUINA ── */
