@@ -131,7 +131,7 @@
 <!-- HEADER -->
 <div class="header">
     <div class="header-left">
-        <button class="hamburger-btn" id="hambBtn">
+        <button class="hamburger-btn" id="hamburgerBtn">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
@@ -145,20 +145,32 @@
 </div>
 
 <!-- SIDEBAR -->
-<div class="overlay" id="overlay"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-head"><h2>Navegação</h2><p>Sistema de Manutenção</p></div>
-    <div class="s-section">
-        <div class="s-title">Operação</div>
-        <a href="ocorrencias.html" class="s-item"><span class="s-icon">📋</span> Central de Ocorrências</a>
-        <div class="s-title">Manutenção</div>
-        <a href="predial.html" class="s-item"><span class="s-icon">🏢</span> Predial</a>
-        <a href="equipamentos.html" class="s-item"><span class="s-icon">⚙️</span> Equipamentos</a>
-        <div class="s-title">Check-lists</div>
-        <a href="checklist-painel.html" class="s-item"><span class="s-icon">✅</span> Painel Check-lists</a>
-        <a href="checklist.html" class="s-item"><span class="s-icon">📝</span> Novo Check-list</a>
-        <div class="s-title">Gestão</div>
-        <a href="usuarios.html" class="s-item active"><span class="s-icon">👥</span> Usuários</a>
+    <div class="sidebar-header"><h2>Menu de Navegação</h2><p>Selecione uma opção abaixo</p></div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Início</div>
+        <a href="menu.html" class="menu-item"><span class="menu-icon">🏠</span><span>Dashboard</span></a>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Manutenção</div>
+        <a href="menu.html" class="menu-item"><span class="menu-icon">⚙️</span><span>Equipamentos</span></a>
+        <a href="menu.html" class="menu-item"><span class="menu-icon">🏢</span><span>Predial</span></a>
+        <a href="ocorrencias.html" class="menu-item"><span class="menu-icon">📋</span><span>Ocorrências</span></a>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Check-list</div>
+        <a href="checklist-painel.html" class="menu-item"><span class="menu-icon">✅</span><span>Painel Check-lists</span></a>
+        <a href="checklist.html" class="menu-item"><span class="menu-icon">📝</span><span>Novo Check-list</span></a>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Cadastros</div>
+        <a href="equipamentos.html" class="menu-item"><span class="menu-icon">🔧</span><span>Cadastro de Equipamentos</span></a>
+        <div class="menu-item active"><span class="menu-icon">👥</span><span>Usuários</span></div>
     </div>
 </div>
 
@@ -478,9 +490,9 @@ function setupPermCards() {
 
 /* ── SIDEBAR ── */
 function setupSidebar() {
-    const btn = document.getElementById('hambBtn');
+    const btn = document.getElementById('hamburgerBtn');
     const sb  = document.getElementById('sidebar');
-    const ov  = document.getElementById('overlay');
+    const ov  = document.getElementById('sidebarOverlay');
     btn.addEventListener('click', () => {
         btn.classList.toggle('active');
         sb.classList.toggle('active');
@@ -492,7 +504,7 @@ function setupSidebar() {
     });
 }
 function closeSidebar() {
-    ['hambBtn','sidebar','overlay'].forEach(id => document.getElementById(id).classList.remove('active'));
+    ['hamburgerBtn','sidebar','sidebarOverlay'].forEach(id => document.getElementById(id).classList.remove('active'));
 }
 
 /* ── LOAD ── */
