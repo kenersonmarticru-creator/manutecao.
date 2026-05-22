@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máquinas Cadastradas — Sistema de Manutenção</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/base.css">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        .main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+
+        .hero-strip {
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            color: white;
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .hero-strip h2 { font-size: 22px; margin: 0 0 4px; }
+        .hero-strip p  { margin: 0; opacity: .75; font-size: 14px; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            text-align: center;
+        }
+        .stat-number { font-size: 28px; font-weight: 800; color: #1e293b; }
+        .stat-label  { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-title { font-size: 17px; font-weight: 700; color: #1e293b; }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .search-bar input, .search-bar select {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .search-bar input:focus, .search-bar select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+        }
+
+        /* Table */
+        .maq-table { width: 100%; border-collapse: collapse; }
+        .maq-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #64748b;
+            padding: 10px 14px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .maq-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #f8fafc;
+            font-size: 14px;
+            color: #334155;
+            vertical-align: middle;
+        }
+        .maq-table tr:last-child td { border-bottom: none; }
+        .maq-table tr:hover td { background: #f8fafc; }
+
+        .badge-ativo   { background: #dcfce7; color: #166534; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .badge-inativo { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .badge-codigo  { background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: monospace; }
+
+        .btn-action {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity .15s;
+        }
+        .btn-action:hover { opacity: .85; }
+        .btn-edit   { background: #f1f5f9; color: #1e293b; }
+        .btn-toggle-ativo   { background: #dcfce7; color: #166534; }
+        .btn-toggle-inativo { background: #fee2e2; color: #991b1b; }
+        .btn-del    { background: #fee2e2; color: #991b1b; }
+
+        .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        /* Form */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #374151; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+        }
+
+        /* Modal */
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; padding:16px; }
+        .modal.open { display:flex; }
+        .modal-box { background:white; border-radius:16px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; }
+        .modal-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 24px 0;
+        }
+        .modal-head h2 { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
+        .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:#64748b; padding:0; }
+        .modal-body { padding: 20px 24px; }
+        .modal-foot { padding: 16px 24px 20px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid #f1f5f9; }
+
+        .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; margin-bottom: 16px; display: none; }
+        .alert.ok  { background:#dcfce7; color:#166534; display:block; }
+        .alert.err { background:#fee2e2; color:#991b1b; display:block; }
+
+        .empty-state { text-align:center; padding: 48px 20px; color:#94a3b8; }
+        .empty-state .icon { font-size:48px; margin-bottom:12px; }
+
+        .btn { padding:10px 20px; background:#0f172a; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+        .btn:hover { background:#1e293b; }
+        .btn-secondary { background:#f1f5f9; color:#374151; }
+        .btn-secondary:hover { background:#e2e8f0; }
+        .btn-hero { padding:10px 22px; background:white; color:#0f172a; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .btn-hero:hover { background:#f1f5f9; }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <h1>🏭 Máquinas Cadastradas</h1>
+    </div>
+    <div class="user-info">
+        <span class="user-name" id="userName">Usuário</span>
+        <span class="user-badge" id="userBadge">Cargo</span>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header"><h2>Menu de Navegação</h2><p>Selecione uma opção abaixo</p></div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Início</div>
+        <a href="menu.html" class="menu-item"><span class="menu-icon">🏠</span><span>Dashboard</span></a>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Manutenção</div>
+        <a href="menu.html" class="menu-item"><span class="menu-icon">⚙️</span><span>Equipamentos</span></a>
+        <a href="menu.html" class="menu-item"><span class="menu-icon">🏢</span><span>Predial</span></a>
+        <a href="ocorrencias.html" class="menu-item"><span class="menu-icon">📋</span><span>Ocorrências</span></a>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Check-list</div>
+        <a href="checklist-painel.html" class="menu-item"><span class="menu-icon">✅</span><span>Painel Check-lists</span></a>
+        <a href="checklist.html" class="menu-item"><span class="menu-icon">📝</span><span>Novo Check-list</span></a>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Cadastros</div>
+        <a href="equipamentos.html" class="menu-item"><span class="menu-icon">🔧</span><span>Cadastro de Equipamentos</span></a>
+        <div class="menu-item active"><span class="menu-icon">🏭</span><span>Máquinas Cadastradas</span></div>
+        <a href="usuarios.html" class="menu-item"><span class="menu-icon">👥</span><span>Usuários</span></a>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- HERO -->
+    <div class="hero-strip">
+        <div>
+            <h2>🏭 Máquinas Cadastradas</h2>
+            <p>Gerencie os códigos de máquinas usados no check-list</p>
+        </div>
+        <button class="btn-hero" onclick="abrirModalNova()">➕ Nova Máquina</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-card"><div class="stat-number" id="statTotal">–</div><div class="stat-label">Total</div></div>
+        <div class="stat-card"><div class="stat-number" id="statAtivas" style="color:#10b981">–</div><div class="stat-label">Ativas</div></div>
+        <div class="stat-card"><div class="stat-number" id="statInativas" style="color:#ef4444">–</div><div class="stat-label">Inativas</div></div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">📋 Lista de Máquinas</span>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por código ou nome...">
+            <select id="filtStatus">
+                <option value="">Todos os status</option>
+                <option value="ativo">Apenas ativas</option>
+                <option value="inativo">Apenas inativas</option>
+            </select>
+        </div>
+
+        <div id="alertList" class="alert"></div>
+        <div id="listaContainer">
+            <div class="empty-state"><div class="icon">⏳</div><p>Carregando...</p></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL NOVA / EDITAR -->
+<div class="modal" id="modalForm">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 id="modalTitle">➕ Nova Máquina</h2>
+            <button class="modal-close" onclick="fecharModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="alertForm" class="alert"></div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Código / Número *</label>
+                    <input id="f_codigo" placeholder="Ex: EMP-01, M-12, 003" maxlength="30">
+                    <small style="color:#64748b;font-size:12px;">Identificador único (ex: EMP-01)</small>
+                </div>
+                <div class="form-group">
+                    <label>Nome / Descrição *</label>
+                    <input id="f_nome" placeholder="Ex: Empilhadeira 01">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="f_ativo">
+                        <option value="true">Ativa</option>
+                        <option value="false">Inativa</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+            <button class="btn" id="btnSalvar" onclick="salvarMaquina()">💾 Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMAR EXCLUSÃO -->
+<div class="modal" id="modalDel">
+    <div class="modal-box" style="max-width:380px">
+        <div class="modal-head">
+            <h2>⚠️ Excluir Máquina</h2>
+            <button class="modal-close" onclick="fecharModalDel()">×</button>
+        </div>
+        <div class="modal-body">
+            <p>Tem certeza que deseja excluir a máquina <strong id="delNome"></strong>?</p>
+            <p style="font-size:13px;color:#64748b;">Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-secondary" onclick="fecharModalDel()">Cancelar</button>
+            <button class="btn" style="background:#ef4444" onclick="confirmarExclusao()">🗑️ Excluir</button>
+        </div>
+    </div>
+</div>
+
+<script src="notifications.js"></script>
+<script src="push.js"></script>
+<script>
+const SUPABASE_URL = 'https://wcfrwsgnxochxvwhxnvy.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZnJ3c2dueG9jaHh2d2h4bnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MzExMDgsImV4cCI6MjA4MzIwNzEwOH0.Yb4cT5chXp3S8NZaWbLpv436HzxGCO7CZTruPpOPDdU';
+
+let db, currentUser;
+let allMaquinas = [], editingId = null, deleteTargetId = null;
+
+/* ── BOOT ── */
+document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('currentUser');
+    if (!saved) { window.location.href = 'login.html'; return; }
+    currentUser = JSON.parse(saved);
+
+    document.getElementById('userName').textContent = currentUser.nome || 'Usuário';
+    document.getElementById('userBadge').textContent = currentUser.perfil || 'Cargo';
+
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    setupSidebar();
+    setupBusca();
+    loadMaquinas();
+    window.notifInit?.();
+    window.pushInit?.();
+
+    document.getElementById('btnLogout').addEventListener('click', () => {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    });
+});
+
+/* ── SIDEBAR ── */
+function setupSidebar() {
+    const btn = document.getElementById('hamburgerBtn');
+    const sb  = document.getElementById('sidebar');
+    const ov  = document.getElementById('sidebarOverlay');
+    btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        sb.classList.toggle('active');
+        ov.classList.toggle('active');
+    });
+    ov.addEventListener('click', () => {
+        ['hamburgerBtn','sidebar','sidebarOverlay'].forEach(id => document.getElementById(id).classList.remove('active'));
+    });
+}
+
+/* ── BUSCA ── */
+function setupBusca() {
+    document.getElementById('searchInput').addEventListener('input', renderTabela);
+    document.getElementById('filtStatus').addEventListener('change', renderTabela);
+}
+
+/* ── LOAD ── */
+async function loadMaquinas() {
+    const { data, error } = await db.from('maquinas').select('*').order('codigo');
+    if (error) {
+        showAlert('alertList', 'Erro ao carregar máquinas: ' + error.message, 'err');
+        return;
+    }
+    allMaquinas = data || [];
+    atualizarStats();
+    renderTabela();
+}
+
+function atualizarStats() {
+    const ativas   = allMaquinas.filter(m => m.ativo !== false).length;
+    const inativas = allMaquinas.filter(m => m.ativo === false).length;
+    document.getElementById('statTotal').textContent   = allMaquinas.length;
+    document.getElementById('statAtivas').textContent  = ativas;
+    document.getElementById('statInativas').textContent = inativas;
+}
+
+function renderTabela() {
+    const q   = document.getElementById('searchInput').value.toLowerCase();
+    const st  = document.getElementById('filtStatus').value;
+
+    const lista = allMaquinas.filter(m => {
+        const matchQ  = !q || m.codigo.toLowerCase().includes(q) || (m.nome||'').toLowerCase().includes(q);
+        const matchSt = !st || (st === 'ativo' ? m.ativo !== false : m.ativo === false);
+        return matchQ && matchSt;
+    });
+
+    const container = document.getElementById('listaContainer');
+
+    if (!lista.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">🏭</div><p>Nenhuma máquina encontrada.</p></div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <table class="maq-table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nome / Descrição</th>
+                    <th>Status</th>
+                    <th>Criado em</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${lista.map(m => `
+                    <tr>
+                        <td><span class="badge-codigo">${esc(m.codigo)}</span></td>
+                        <td>${esc(m.nome || '–')}</td>
+                        <td>
+                            <span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">
+                                ${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}
+                            </span>
+                        </td>
+                        <td>${formatarData(m.created_at)}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+                                <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}"
+                                        onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
+                                    ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
+                                </button>
+                                <button class="btn-action btn-del" onclick="pedirExclusao('${m.id}', '${esc(m.codigo)}')">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>`;
+}
+
+/* ── NOVA MÁQUINA ── */
+function abrirModalNova() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = '➕ Nova Máquina';
+    document.getElementById('f_codigo').value = '';
+    document.getElementById('f_nome').value   = '';
+    document.getElementById('f_ativo').value  = 'true';
+    document.getElementById('f_codigo').disabled = false;
+    hideAlert('alertForm');
+    document.getElementById('modalForm').classList.add('open');
+}
+
+/* ── EDITAR ── */
+function editarMaquina(id) {
+    const m = allMaquinas.find(x => x.id === id);
+    if (!m) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = '✏️ Editar Máquina';
+    document.getElementById('f_codigo').value = m.codigo;
+    document.getElementById('f_nome').value   = m.nome || '';
+    document.getElementById('f_ativo').value  = String(m.ativo !== false);
+    document.getElementById('f_codigo').disabled = true;
+    hideAlert('alertForm');
+    document.getElementById('modalForm').classList.add('open');
+}
+
+/* ── SALVAR ── */
+async function salvarMaquina() {
+    const codigo = document.getElementById('f_codigo').value.trim().toUpperCase();
+    const nome   = document.getElementById('f_nome').value.trim();
+    const ativo  = document.getElementById('f_ativo').value === 'true';
+
+    if (!codigo || !nome) {
+        showAlert('alertForm', 'Preencha o código e o nome.', 'err');
+        return;
+    }
+
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true;
+    btn.textContent = '⏳ Salvando...';
+
+    let error;
+    if (editingId) {
+        ({ error } = await db.from('maquinas').update({ nome, ativo, updated_at: new Date().toISOString() }).eq('id', editingId));
+    } else {
+        ({ error } = await db.from('maquinas').insert([{ codigo, nome, ativo }]));
+    }
+
+    btn.disabled = false;
+    btn.textContent = '💾 Salvar';
+
+    if (error) {
+        const msg = error.code === '23505'
+            ? 'Já existe uma máquina com esse código.'
+            : 'Erro ao salvar: ' + error.message;
+        showAlert('alertForm', msg, 'err');
+        return;
+    }
+
+    fecharModal();
+    await loadMaquinas();
+}
+
+/* ── TOGGLE ATIVO ── */
+async function toggleAtivo(id, atualAtivo) {
+    const { error } = await db.from('maquinas').update({ ativo: !atualAtivo, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) { showAlert('alertList', 'Erro ao atualizar: ' + error.message, 'err'); return; }
+    await loadMaquinas();
+}
+
+/* ── EXCLUIR ── */
+function pedirExclusao(id, codigo) {
+    deleteTargetId = id;
+    document.getElementById('delNome').textContent = codigo;
+    document.getElementById('modalDel').classList.add('open');
+}
+
+async function confirmarExclusao() {
+    const { error } = await db.from('maquinas').delete().eq('id', deleteTargetId);
+    fecharModalDel();
+    if (error) { showAlert('alertList', 'Erro ao excluir: ' + error.message, 'err'); return; }
+    await loadMaquinas();
+}
+
+/* ── MODAIS ── */
+function fecharModal()    { document.getElementById('modalForm').classList.remove('open'); }
+function fecharModalDel() { document.getElementById('modalDel').classList.remove('open'); }
+
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+/* ── HELPERS ── */
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatarData(iso) {
+    if (!iso) return '–';
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR');
+}
+function showAlert(id, msg, tipo) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'alert ' + tipo;
+}
+function hideAlert(id) {
+    const el = document.getElementById(id);
+    el.className = 'alert';
+    el.textContent = '';
+}
+</script>
+</body>
+</html>

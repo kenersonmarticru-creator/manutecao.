@@ -60,3 +60,21 @@ CREATE POLICY "Acesso total a equipamentos"
 ON equipamentos FOR ALL
 USING (true)
 WITH CHECK (true);
+
+-- =============================================================
+-- TABELA: maquinas (catálogo de máquinas do check-list)
+-- =============================================================
+CREATE TABLE IF NOT EXISTS maquinas (
+    id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    codigo      text NOT NULL UNIQUE,
+    nome        text NOT NULL,
+    ativo       boolean NOT NULL DEFAULT true,
+    created_at  timestamptz DEFAULT now(),
+    updated_at  timestamptz DEFAULT now()
+);
+
+ALTER TABLE maquinas ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Acesso total a maquinas"
+ON maquinas FOR ALL
+USING (true)
+WITH CHECK (true);
