@@ -13,117 +13,34 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        /* ── Máquinas permitidas ── */
-        .maquinas-section {
-            margin-top: 20px;
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            border: 1.5px solid #7dd3fc;
-            border-radius: 12px;
-            padding: 18px;
+        /* Sobrescreve header roxo → escuro (padrão do sistema) */
+        .header { background: #0f172a !important; box-shadow: 0 2px 8px rgba(0,0,0,.4) !important; }
+        /* Hero sem fundo roxo */
+        .hero-strip {
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            border-radius: 16px; padding: 24px 28px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px; color: white;
         }
-        .maquinas-section h3 {
-            font-size: 14px;
-            font-weight: 700;
-            color: #0369a1;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .maquinas-toggle {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }
-        .toggle-btn {
-            padding: 7px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 2px solid #e5e7eb;
-            background: white;
-            color: #6b7280;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        .toggle-btn.active {
-            background: #0369a1;
-            border-color: #0369a1;
-            color: white;
-        }
-        .maquinas-input-area {
-            display: none;
-        }
-        .maquinas-input-area.visible {
-            display: block;
-        }
-        .maquinas-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
-            min-height: 36px;
-        }
-        .maquina-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #0369a1;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .maquina-tag button {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.8);
-            cursor: pointer;
-            font-size: 16px;
-            line-height: 1;
-            padding: 0;
-            display: flex;
-            align-items: center;
-        }
-        .maquina-tag button:hover { color: white; }
-        .maquinas-add-row {
-            display: flex;
-            gap: 8px;
-        }
-        .maquinas-add-row input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1.5px solid #bae6fd;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: inherit;
-            background: white;
-        }
-        .maquinas-add-row input:focus {
-            outline: none;
-            border-color: #0369a1;
-            box-shadow: 0 0 0 3px rgba(3,105,161,0.1);
-        }
-        .maquinas-add-row button {
-            padding: 10px 18px;
-            background: #0369a1;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 14px;
-        }
-        .maquinas-add-row button:hover { background: #0284c7; }
-        .maquinas-hint {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 8px;
-        }
+        .hero-strip h2 { font-size: 20px; font-weight: 700; margin: 0; }
+        .hero-strip p  { font-size: 13px; opacity: .8; margin: 4px 0 0; }
+        .btn-hero { padding:10px 20px; background:white; color:#0f172a; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .btn-hero:hover { background:#f1f5f9; }
+        /* Máquinas permitidas */
+        .maquinas-section { margin-top:20px; background:#f0f9ff; border:1.5px solid #7dd3fc; border-radius:12px; padding:18px; }
+        .maquinas-section h3 { font-size:14px; font-weight:700; color:#0369a1; margin-bottom:12px; }
+        .maquinas-toggle { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+        .toggle-btn { padding:7px 16px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:2px solid #e5e7eb; background:white; color:#6b7280; transition:all .2s; font-family:inherit; }
+        .toggle-btn.active { background:#0369a1; border-color:#0369a1; color:white; }
+        .maquinas-input-area { display:none; }
+        .maquinas-input-area.visible { display:block; }
+        .maquinas-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; min-height:36px; }
+        .maquina-tag { display:inline-flex; align-items:center; gap:6px; background:#0369a1; color:white; padding:5px 12px; border-radius:20px; font-size:13px; font-weight:600; }
+        .maquina-tag button { background:none; border:none; color:rgba(255,255,255,.8); cursor:pointer; font-size:16px; line-height:1; padding:0; }
+        .maquinas-add-row { display:flex; gap:8px; }
+        .maquinas-add-row input { flex:1; padding:10px 14px; border:1.5px solid #bae6fd; border-radius:10px; font-size:14px; font-family:inherit; background:white; }
+        .maquinas-add-row button { padding:10px 18px; background:#0369a1; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .maquinas-hint { font-size:12px; color:#64748b; margin-top:8px; }
     </style>
 </head>
 <body>
@@ -136,10 +53,11 @@
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
         </button>
-        <h1>👥 Usuários <span>Gestão & Permissões</span></h1>
+        <h1>👥 Usuários</h1>
     </div>
-    <div class="header-right">
-        <span class="user-chip" id="userChip">Admin</span>
+    <div class="user-info">
+        <span class="user-name" id="userName">Usuário</span>
+        <span class="user-badge" id="userBadge">Admin</span>
         <button class="btn-logout" id="btnLogout">Sair</button>
     </div>
 </div>
@@ -178,14 +96,12 @@
 <!-- MAIN -->
 <div class="main">
 
-    <div class="hero">
+    <div class="hero-strip">
         <div>
             <h2>👥 Gestão de Usuários</h2>
             <p>Cadastre, edite permissões e gerencie o acesso dos usuários</p>
         </div>
-        <div class="hero-actions">
-            <button class="btn-hero primary" onclick="abrirModalNovo()">➕ Novo Usuário</button>
-        </div>
+        <button class="btn-hero" onclick="abrirModalNovo()">➕ Novo Usuário</button>
     </div>
 
     <div class="stats">
@@ -469,7 +385,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!podeAcessar) { alert('⛔ Acesso negado.'); window.location.href = 'menu.html'; return; }
 
-    document.getElementById('userChip').textContent = currentUser.nome || 'Admin';
+    document.getElementById('userName').textContent = currentUser.nome || 'Usuário';
+    document.getElementById('userBadge').textContent = currentUser.perfil || 'Admin';
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     setupSidebar();
     setupSearch();
