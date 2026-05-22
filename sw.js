@@ -5,7 +5,7 @@
  * ============================================================
  */
 
-const CACHE_NAME = 'manutencao-v1';
+const CACHE_NAME = 'manutencao-v2';
 
 /* ── Arquivos para cache offline (PWA) ─────────────────────── */
 const CACHE_URLS = [
