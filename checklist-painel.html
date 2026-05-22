@@ -37,7 +37,19 @@
             cursor: crosshair;
             margin-top: 8px;
         }
-        .assinatura-wrap canvas { display: block; width: 100%; height: 160px; }
+        .assinatura-wrap canvas { display: block; width: 100%; height: 160px; background: #fff; }
+
+        /* ── CARDS MOBILE (check-list list) ── */
+        .cl-card {
+            background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 14px 16px; margin-bottom: 10px;
+        }
+        .cl-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+        .cl-card-date { margin-left: auto; font-size: 11px; color: #94a3b8; white-space: nowrap; }
+        .cl-card-name { font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 6px; }
+        .cl-card-sub  { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .cl-card-sub-label { font-size: 11px; color: #64748b; }
+        .cl-card-actions { display: flex; gap: 6px; }
         .assinatura-wrap.signed { border-color: #6366f1; border-style: solid; }
         .assinatura-hint { font-size: 11px; color: #64748b; margin: 5px 0 6px; }
         .btn-limpar-assinatura {
@@ -343,15 +355,59 @@ function popularFiltros() {
     maquinas.forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.textContent = m; selMaq.appendChild(opt); });
 }
 
-/* ── RENDER TABLE ── */
+/* ── RENDER TABLE / CARDS ── */
 function renderTabela(lista) {
     const el = document.getElementById('listaChecklists');
     if (!lista.length) {
         el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>Nenhum check-list encontrado.</p></div>';
         return;
     }
-    let html = `<div class="total-strip">📊 ${lista.length} check-list(s) encontrado(s)</div>
-    <div class="table-container"><table id="tabelaChecklists">
+    const strip = `<div class="total-strip">📊 ${lista.length} check-list(s) encontrado(s)</div>`;
+
+    if (window.innerWidth <= 768) {
+        let html = strip;
+        lista.forEach(item => {
+            const dt = new Date(item.created_at || `${item.data}T${item.hora||'00:00'}`);
+            const dateStr = dt.toLocaleDateString('pt-BR');
+            const timeStr = dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+            const prob = item.total_problemas || 0;
+            const turnoClass = item.turno==='A' ? 'badge-turno-a' : item.turno==='B' ? 'badge-turno-b' : 'badge-turno-c';
+            const situBadge = prob > 0
+                ? `<span class="badge badge-warning">⚠️ ${prob} prob.</span>`
+                : `<span class="badge badge-ok">✅ OK</span>`;
+            const maquinaStr = item.numero_maquina
+                ? `<span class="badge badge-purple">🏭 ${item.numero_maquina}</span>`
+                : '';
+            const assOperUrl = item.assinatura_tecnico_url || item.assinatura_drive_url;
+            const links = [
+                item.foto_drive_url ? `<a href="${item.foto_drive_url}" target="_blank" style="color:#60a5fa;font-size:13px">📷 Foto</a>` : '',
+                assOperUrl ? `<a href="${assOperUrl}" target="_blank" style="color:#a78bfa;font-size:13px">✍️ Op.</a>` : '',
+                item.assinatura_supervisor_url ? `<a href="${item.assinatura_supervisor_url}" target="_blank" style="color:#34d399;font-size:13px">✍️ Sup.</a>` : ''
+            ].filter(Boolean).join(' ');
+            html += `<div class="cl-card">
+                <div class="cl-card-top">
+                    <span class="badge ${turnoClass}">Turno ${item.turno||'–'}</span>
+                    ${situBadge}
+                    <span class="cl-card-date">${dateStr} ${timeStr}</span>
+                </div>
+                <div class="cl-card-name">${item.operador||'–'}</div>
+                <div class="cl-card-sub">
+                    ${maquinaStr}
+                    <span class="cl-card-sub-label">Mat: ${item.matricula||'–'}</span>
+                    ${item.horimetro ? `<span class="cl-card-sub-label">Hor: ${item.horimetro}</span>` : ''}
+                    ${links}
+                </div>
+                <div class="cl-card-actions">
+                    <button class="btn btn-small" onclick='verDetalhes(${JSON.stringify(JSON.stringify(item))})'>👁️ Ver</button>
+                    <button class="btn-print" onclick='abrirImpressao(${JSON.stringify(JSON.stringify(item))})'>🖨️</button>
+                </div>
+            </div>`;
+        });
+        el.innerHTML = html;
+        return;
+    }
+
+    let html = strip + `<div class="table-container"><table id="tabelaChecklists">
     <thead><tr>
         <th>Data/Hora</th><th>Operador</th><th>Matrícula</th><th>Máquina</th><th>Turno</th>
         <th>Horímetro</th><th>Situação</th><th>Problemas</th><th>Foto</th><th>Assinatura</th><th>Ações</th>
@@ -368,8 +424,6 @@ function renderTabela(lista) {
         const maquinaStr = item.numero_maquina
             ? `<span class="badge badge-purple">🏭 ${item.numero_maquina}</span>`
             : '<span style="color:#aaa;font-size:12px">–</span>';
-
-        // Links foto e assinaturas
         const fotoLink = item.foto_drive_url
             ? `<a href="${item.foto_drive_url}" target="_blank" title="Ver foto" style="color:#60a5fa;font-size:13px">📷</a>`
             : '<span style="color:#475569;font-size:11px">–</span>';
@@ -405,14 +459,21 @@ function renderTabela(lista) {
 function setupSearch() {
     document.getElementById('searchChecklist').addEventListener('input', function() {
         const term = this.value.toLowerCase().trim();
-        const tbody = document.querySelector('#tabelaChecklists tbody');
-        if (!tbody) return;
         let v = 0;
-        tbody.querySelectorAll('tr').forEach(row => {
-            const m = row.textContent.toLowerCase().includes(term);
-            row.style.display = m ? '' : 'none';
-            if (m) v++;
-        });
+        const tbody = document.querySelector('#tabelaChecklists tbody');
+        if (tbody) {
+            tbody.querySelectorAll('tr').forEach(row => {
+                const m = row.textContent.toLowerCase().includes(term);
+                row.style.display = m ? '' : 'none';
+                if (m) v++;
+            });
+        } else {
+            document.querySelectorAll('.cl-card').forEach(card => {
+                const m = card.textContent.toLowerCase().includes(term);
+                card.style.display = m ? '' : 'none';
+                if (m) v++;
+            });
+        }
         const strip = document.querySelector('.total-strip');
         if (strip) strip.textContent = `📊 ${v} check-list(s) encontrado(s)`;
     });
@@ -568,6 +629,8 @@ function setupAssinatura(canvasId, wrapId) {
     var canvas = document.getElementById(canvasId);
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     var drawing = false, lastX = 0, lastY = 0;
     canvas._vazia = true;
 
@@ -610,7 +673,9 @@ function setupAssinatura(canvasId, wrapId) {
 function limparAssinatura(canvasId, wrapId) {
     var canvas = document.getElementById(canvasId);
     if (!canvas) return;
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     canvas._vazia = true;
     document.getElementById(wrapId)?.classList.remove('signed');
 }
