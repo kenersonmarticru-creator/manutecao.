@@ -138,6 +138,33 @@ body {
     padding-top: 64px;
 }
 .sidebar.active { left: 0; }
+.sidebar-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--sidebar-bg);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 0;
+}
+.sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: calc(100% - 16px);
+    margin: 0 8px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #f87171;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: background 0.2s;
+}
+.sidebar-logout:hover { background: rgba(239,68,68,0.15); }
+.sidebar-logout .menu-icon { font-size: 16px; }
 .sidebar-header {
     padding: 20px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -628,6 +655,63 @@ tr:last-child td { border-bottom: none; }
 .comment-image { border-radius: var(--radius-sm); overflow: hidden; cursor: pointer; transition: all 0.2s; }
 .comment-image img { width: 100%; height: 110px; object-fit: cover; }
 .comment-image:hover { transform: scale(1.04); box-shadow: var(--shadow-md); }
+
+/* ── FILTER DRAWER (mobile) ──────────────────────────────── */
+.filtros-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 299; cursor: pointer;
+}
+.filtros-backdrop.active { display: block; }
+
+.filtros-close-row {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.filtros-close-row h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.btn-filtros-fechar {
+    background: none; border: none; font-size: 22px; cursor: pointer;
+    color: #64748b; padding: 0 4px; line-height: 1;
+}
+.btn-filtros-mobile {
+    display: none;
+    align-items: center; gap: 6px;
+    padding: 8px 14px; background: #f1f5f9; border: 1px solid #e2e8f0;
+    border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569;
+    cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.btn-filtros-mobile:hover { background: #e2e8f0; }
+
+/* ── MOBILE LIST CARDS (shared) ──────────────────────────── */
+.cl-card {
+    background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px;
+}
+.cl-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.cl-card-date { margin-left: auto; font-size: 11px; color: #94a3b8; white-space: nowrap; }
+.cl-card-name { font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 6px; }
+.cl-card-sub  { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.cl-card-sub-label { font-size: 11px; color: #64748b; }
+.cl-card-actions { display: flex; gap: 6px; }
+
+@media (max-width: 768px) {
+    .filters-section {
+        position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+        background: white !important; border: none !important;
+        border-radius: 20px 20px 0 0 !important;
+        box-shadow: 0 -8px 32px rgba(0,0,0,0.2) !important;
+        padding: 20px 20px 32px !important; margin-bottom: 0 !important;
+        max-height: 85vh !important; overflow-y: auto !important;
+        z-index: 300 !important;
+        transform: translateY(110%) !important;
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+    }
+    .filters-section.filtros-open { transform: translateY(0) !important; }
+    .btn-filtros-mobile { display: inline-flex; }
+    .filtros-close-row { display: flex; }
+    .btn-small { width: auto; }
+}
+@media (min-width: 769px) {
+    .filtros-close-row { display: none; }
+}
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 @media (min-width: 769px) { .user-name { display: block; } }

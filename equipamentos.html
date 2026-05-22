@@ -63,7 +63,7 @@
     <div class="user-info">
         <span class="user-name" id="userName">Usuário</span>
         <span class="user-badge" id="userBadge">Cargo</span>
-        <button class="btn-logout" id="btnLogout">Sair</button>
+        <span id="notif-slot"></span>
     </div>
 </div>
 
@@ -94,6 +94,13 @@
         <div class="menu-item active"><span class="menu-icon">🔧</span><span>Cadastro de Equipamentos</span></div>
         <a href="maquinas.html" class="menu-item"><span class="menu-icon">🏭</span><span>Máquinas Cadastradas</span></a>
         <a href="usuarios.html" class="menu-item"><span class="menu-icon">👥</span><span>Usuários</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+        <button class="sidebar-logout" id="btnLogout">
+            <span class="menu-icon">🚪</span>
+            <span>Sair</span>
+        </button>
     </div>
 </div>
 
@@ -208,12 +215,12 @@
     <!-- ABA: LISTA -->
     <div class="tab-content" id="tab-lista">
         <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
                 <h2 style="margin:0">📋 Equipamentos Cadastrados</h2>
-                <input class="search-input" style="max-width:240px" placeholder="🔍 Pesquisar..." id="filtroLista" oninput="renderLista()">
+                <input class="search-input" style="flex:1;min-width:160px;max-width:280px" placeholder="🔍 Pesquisar..." id="filtroLista" oninput="renderLista()">
             </div>
-            <div class="table-container">
-                <table>
+            <div class="table-container" id="tabelaListaWrap">
+                <table id="tabelaLista">
                     <thead>
                         <tr>
                             <th>Nº</th>
@@ -230,6 +237,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="cardsListaMobile" style="display:none"></div>
         </div>
     </div>
 </div>
@@ -393,6 +401,33 @@ function renderLista() {
         (e.numero_serie||'').toLowerCase().includes(filtro) ||
         (e.numero_patrimonio||'').toLowerCase().includes(filtro)
     );
+
+    if (window.innerWidth <= 768) {
+        document.getElementById('tabelaListaWrap').style.display = 'none';
+        const cardsEl = document.getElementById('cardsListaMobile');
+        cardsEl.style.display = 'block';
+        if (!items.length) {
+            cardsEl.innerHTML = '<div class="empty-state">Nenhum equipamento cadastrado.</div>';
+            return;
+        }
+        cardsEl.innerHTML = items.map(e => `<div class="cl-card">
+            <div class="cl-card-name">${e.nome || '–'}</div>
+            <div class="cl-card-sub">
+                <span class="codigo-badge" style="font-size:11px">${e.numero}</span>
+                ${e.tipo ? `<span class="cl-card-sub-label">${e.tipo}</span>` : ''}
+                ${e.fabricante||e.modelo ? `<span class="cl-card-sub-label">${[e.fabricante,e.modelo].filter(Boolean).join(' / ')}</span>` : ''}
+                ${e.numero_serie ? `<span class="cl-card-sub-label" style="font-family:monospace">S/N: ${e.numero_serie}</span>` : ''}
+            </div>
+            <div class="cl-card-actions">
+                <button class="btn btn-small" onclick="editarEquipamento(${e.id})">✏️ Editar</button>
+                <button class="btn btn-small btn-danger" onclick="excluirEquipamento(${e.id}, '${(e.nome||String(e.numero)).replace(/'/g,"\\'")}')">🗑️ Excluir</button>
+            </div>
+        </div>`).join('');
+        return;
+    }
+
+    document.getElementById('tabelaListaWrap').style.display = '';
+    document.getElementById('cardsListaMobile').style.display = 'none';
     if (!items.length) {
         tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhum equipamento cadastrado.</td></tr>';
         return;

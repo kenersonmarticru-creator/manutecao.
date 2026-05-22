@@ -25,7 +25,7 @@
     <div class="user-info">
         <span class="user-name" id="userName"></span>
         <span class="user-badge" id="userBadge">Usuário</span>
-        <button class="btn-logout" id="btnLogout">Sair</button>
+        <span id="notif-slot"></span>
     </div>
 </div>
 
@@ -54,7 +54,15 @@
     <div class="menu-section">
         <div class="menu-section-title">Cadastros</div>
         <a href="equipamentos.html" class="menu-item"><span class="menu-icon">🔧</span><span>Cadastro de Equipamentos</span></a>
+        <a href="maquinas.html" class="menu-item"><span class="menu-icon">🏭</span><span>Máquinas Cadastradas</span></a>
         <a href="usuarios.html" class="menu-item"><span class="menu-icon">👥</span><span>Usuários</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+        <button class="sidebar-logout" id="btnLogout">
+            <span class="menu-icon">🚪</span>
+            <span>Sair</span>
+        </button>
     </div>
 </div>
 
@@ -80,8 +88,12 @@
     </div>
 
     <div class="card">
-        <div class="filters-section">
-            <h3>🔍 Filtros</h3>
+        <div class="filtros-backdrop" id="filtrosBackdrop" onclick="fecharFiltros()"></div>
+        <div class="filters-section" id="filtrosSection">
+            <div class="filtros-close-row">
+                <h3>⚙️ Filtros</h3>
+                <button class="btn-filtros-fechar" onclick="fecharFiltros()">×</button>
+            </div>
             <div class="form-grid">
                 <div class="form-group"><label>Tipo</label>
                     <select id="filtroTipo"><option value="">Todos</option><option value="predial">Predial</option><option value="equipamento">Equipamento</option></select>
@@ -101,8 +113,9 @@
                 <button class="btn btn-secondary" onclick="limparFiltros()">↺ Limpar</button>
             </div>
         </div>
-        <div class="search-box">
-            <input type="text" class="search-input" id="searchOcorrencias" placeholder="🔍 Buscar por código, local, equipamento, tipo...">
+        <div class="search-box" style="display:flex;gap:8px;align-items:center">
+            <input type="text" class="search-input" id="searchOcorrencias" placeholder="🔍 Buscar por código, local, equipamento, tipo..." style="flex:1">
+            <button class="btn-filtros-mobile" onclick="abrirFiltros()">⚙️ Filtros</button>
         </div>
         <div id="listaOcorrencias"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
     </div>
@@ -242,12 +255,56 @@ function calcStats(){
     document.getElementById('statUrgente').textContent=allOcorrencias.filter(i=>i.prioridade==='urgente').length;
 }
 
-/* RENDER TABLE */
+/* FILTER DRAWER */
+function abrirFiltros(){
+    document.getElementById('filtrosSection').classList.add('filtros-open');
+    document.getElementById('filtrosBackdrop').classList.add('active');
+}
+function fecharFiltros(){
+    document.getElementById('filtrosSection').classList.remove('filtros-open');
+    document.getElementById('filtrosBackdrop').classList.remove('active');
+}
+
+/* RENDER TABLE / CARDS */
 function renderTabela(lista){
     const el=document.getElementById('listaOcorrencias');
     if(!lista.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhuma ocorrência encontrada.</p></div>';return;}
-    let html=`<div class="total-strip">📊 ${lista.length} ocorrência(s) encontrada(s)</div>
-    <div class="table-container"><table id="tabelaOcorrencias">
+    const strip=`<div class="total-strip">📊 ${lista.length} ocorrência(s) encontrada(s)</div>`;
+
+    if(window.innerWidth<=768){
+        let html=strip;
+        lista.forEach(item=>{
+            const isPredial=item.tipo_manutencao==='predial';
+            const icon=isPredial?'🏢':'⚙️', label=isPredial?'Predial':'Equip.';
+            const data=new Date(item.created_at).toLocaleDateString('pt-BR');
+            const priorBadge=`<span class="badge badge-${item.prioridade||'media'}">${item.prioridade||'média'}</span>`;
+            const canEdit=isPredial?hasPermission('perm_predial_editar'):hasPermission('perm_equipamentos_editar');
+            const notLocked=!item.bloqueado||currentUser.perfil==='admin';
+            const editBtn=canEdit&&notLocked?`<button class="btn btn-small btn-warning" onclick="abrirDetalhes(${item.id},'${item.tipo_manutencao}',true)">✏️ Editar</button>`:'';
+            html+=`<div class="cl-card">
+                <div class="cl-card-top">
+                    <span style="font-size:13px">${icon} ${label}</span>
+                    ${priorBadge}
+                    <span class="badge badge-${item.status}">${item.status}</span>
+                    <span class="cl-card-date">${data}</span>
+                </div>
+                <div class="cl-card-name">${item.titulo}</div>
+                <div class="cl-card-sub">
+                    <span class="codigo-badge" style="font-size:11px">${item.codigo}</span>
+                    <span class="cl-card-sub-label">${item.subtitulo||''}</span>
+                    ${item.criado_por?`<span class="cl-card-sub-label">por ${item.criado_por}</span>`:''}
+                </div>
+                <div class="cl-card-actions">
+                    <button class="btn btn-small btn-secondary" onclick="abrirDetalhes(${item.id},'${item.tipo_manutencao}',false)">👁️ Ver</button>
+                    ${editBtn}
+                </div>
+            </div>`;
+        });
+        el.innerHTML=html;
+        return;
+    }
+
+    let html=strip+`<div class="table-container"><table id="tabelaOcorrencias">
     <thead><tr><th>Tipo</th><th>Código</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Status</th><th>Criado por</th><th>Data</th><th>Ações</th></tr></thead><tbody>`;
     lista.forEach(item=>{
         const isPredial=item.tipo_manutencao==='predial';
@@ -280,13 +337,19 @@ function renderTabela(lista){
 function setupSearch(){
     document.getElementById('searchOcorrencias').addEventListener('input',function(){
         const term=this.value.toLowerCase().trim();
-        const tbody=document.querySelector('#tabelaOcorrencias tbody');
-        if(!tbody)return;
         let v=0;
-        tbody.querySelectorAll('tr').forEach(row=>{
-            const m=row.textContent.toLowerCase().includes(term);
-            row.style.display=m?'':'none'; if(m)v++;
-        });
+        const tbody=document.querySelector('#tabelaOcorrencias tbody');
+        if(tbody){
+            tbody.querySelectorAll('tr').forEach(row=>{
+                const m=row.textContent.toLowerCase().includes(term);
+                row.style.display=m?'':'none'; if(m)v++;
+            });
+        } else {
+            document.querySelectorAll('.cl-card').forEach(card=>{
+                const m=card.textContent.toLowerCase().includes(term);
+                card.style.display=m?'':'none'; if(m)v++;
+            });
+        }
         const strip=document.querySelector('.total-strip');
         if(strip)strip.textContent=`📊 ${v} ocorrência(s) encontrada(s)`;
     });
@@ -317,12 +380,14 @@ function aplicarFiltros(){
     });
     renderTabela(filteredOcorrencias);
     document.getElementById('searchOcorrencias').value='';
+    fecharFiltros();
 }
 function limparFiltros(){
     ['filtroTipo','filtroStatus','filtroPrioridade','filtroCriadoPor','filtroDataInicio','filtroDataFim'].forEach(id=>document.getElementById(id).value='');
     filteredOcorrencias=[...allOcorrencias];
     renderTabela(filteredOcorrencias);
     document.getElementById('searchOcorrencias').value='';
+    fecharFiltros();
 }
 
 /* ABRIR DETALHES */

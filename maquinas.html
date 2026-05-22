@@ -13,76 +13,25 @@
     <style>
         .main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
 
-        .hero-strip {
-            background: linear-gradient(135deg, #0f172a, #1e3a5f);
-            color: white;
-            border-radius: 16px;
-            padding: 24px 28px;
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+        /* Hero dark navy (this page) */
+        .hero-strip { background: linear-gradient(135deg, #0f172a, #1e3a5f) !important; }
         .hero-strip h2 { font-size: 22px; margin: 0 0 4px; }
         .hero-strip p  { margin: 0; opacity: .75; font-size: 14px; }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 18px 20px;
-            text-align: center;
-        }
-        .stat-number { font-size: 28px; font-weight: 800; color: #1e293b; }
-        .stat-label  { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
+        .card-title  { font-size: 17px; font-weight: 700; color: #1e293b; }
 
-        .card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .card-title { font-size: 17px; font-weight: 700; color: #1e293b; }
-
-        .search-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
+        .search-bar { display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
         .search-bar input, .search-bar select {
-            flex: 1;
-            min-width: 180px;
-            padding: 10px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
+            flex:1; min-width:180px; padding:10px 14px;
+            border:1px solid #e2e8f0; border-radius:8px; font-size:14px; font-family:inherit;
         }
         .search-bar input:focus, .search-bar select:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+            outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.1);
         }
 
         /* Table */
+<<<<<< claude/supabase-sql-setup-5kDZT
         .maq-table { width: 100%; border-collapse: collapse; }
         .maq-table th {
             text-align: left;
@@ -168,6 +117,30 @@
         .status-radio-label input { margin:0; cursor:pointer; }
         .status-radio-label:has(input:checked) { border-color:#6366f1; background:#f0f0ff; }
         .btn-manut { background:#f0f0ff; color:#4f46e5; }
+======
+        .maq-table { width:100%; border-collapse:collapse; }
+        .maq-table th { text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; padding:10px 14px; border-bottom:2px solid #f1f5f9; }
+        .maq-table td { padding:13px 14px; border-bottom:1px solid #f8fafc; font-size:14px; color:#334155; vertical-align:middle; }
+        .maq-table tr:last-child td { border-bottom:none; }
+        .maq-table tr:hover td { background:#f8fafc; }
+
+        .badge-ativo   { background:#dcfce7; color:#166534; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .badge-inativo { background:#fee2e2; color:#991b1b; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .badge-codigo  { background:#e0e7ff; color:#3730a3; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; font-family:monospace; }
+
+        .btn-action { padding:6px 14px; border:none; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity .15s; }
+        .btn-action:hover { opacity:.85; }
+        .btn-edit           { background:#f1f5f9; color:#1e293b; }
+        .btn-toggle-ativo   { background:#dcfce7; color:#166534; }
+        .btn-toggle-inativo { background:#fee2e2; color:#991b1b; }
+        .btn-del            { background:#fee2e2; color:#991b1b; }
+        .actions-cell { display:flex; gap:6px; flex-wrap:wrap; }
+
+        .empty-state { text-align:center; padding:48px 20px; color:#94a3b8; }
+        .empty-state .icon { font-size:48px; margin-bottom:12px; }
+
+        @media(max-width:768px){ .main { padding: 16px 12px; } .hero-strip { padding: 18px 16px !important; } }
+>>>>>> main
     </style>
 </head>
 <body>
@@ -185,7 +158,7 @@
     <div class="user-info">
         <span class="user-name" id="userName">Usuário</span>
         <span class="user-badge" id="userBadge">Cargo</span>
-        <button class="btn-logout" id="btnLogout">Sair</button>
+        <span id="notif-slot"></span>
     </div>
 </div>
 
@@ -217,6 +190,13 @@
         <a href="equipamentos.html" class="menu-item"><span class="menu-icon">🔧</span><span>Cadastro de Equipamentos</span></a>
         <div class="menu-item active"><span class="menu-icon">🏭</span><span>Máquinas Cadastradas</span></div>
         <a href="usuarios.html" class="menu-item"><span class="menu-icon">👥</span><span>Usuários</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+        <button class="sidebar-logout" id="btnLogout">
+            <span class="menu-icon">🚪</span>
+            <span>Sair</span>
+        </button>
     </div>
 </div>
 
@@ -271,7 +251,11 @@
             <h2 id="modalTitle">➕ Nova Máquina</h2>
             <button class="modal-close" onclick="fecharModal()">×</button>
         </div>
+<<<<<< claude/supabase-sql-setup-5kDZT
         <div id="alertForm" class="alert"></div>
+======
+        <div id="alertForm" class="alert" style="display:none"></div>
+>>>>>> main
         <div class="form-grid">
             <div class="form-group">
                 <label>Código / Número *</label>
@@ -480,14 +464,20 @@ function renderTabela() {
         container.innerHTML = lista.map(m => `<div class="cl-card">
             <div class="cl-card-top">
                 <span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span>
+<<<<<< claude/supabase-sql-setup-5kDZT
                 ${renderStatusOp(m)}
+======
+>>>>>> main
                 <span class="cl-card-date">${formatarData(m.created_at)}</span>
             </div>
             <div class="cl-card-name">${esc(m.nome || '–')}</div>
             <div class="cl-card-sub"><span class="badge-codigo">${esc(m.codigo)}</span></div>
             <div class="cl-card-actions">
                 <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+<<<<<< claude/supabase-sql-setup-5kDZT
                 <button class="btn-action btn-manut" onclick="abrirModalManutencao('${m.id}')">🔩 Manutenção</button>
+======
+>>>>>> main
                 <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
                     ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
                 </button>
@@ -500,7 +490,11 @@ function renderTabela() {
     container.innerHTML = `<div class="table-container">
         <table class="maq-table" style="min-width:0">
             <thead><tr>
+<<<<<< claude/supabase-sql-setup-5kDZT
                 <th>Código</th><th>Nome / Descrição</th><th>Status</th><th>Op. Status</th><th>Criado em</th><th>Ações</th>
+======
+                <th>Código</th><th>Nome / Descrição</th><th>Status</th><th>Criado em</th><th>Ações</th>
+>>>>>> main
             </tr></thead>
             <tbody>
                 ${lista.map(m => `
@@ -508,11 +502,17 @@ function renderTabela() {
                         <td><span class="badge-codigo">${esc(m.codigo)}</span></td>
                         <td>${esc(m.nome || '–')}</td>
                         <td><span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span></td>
+<<<<<< claude/supabase-sql-setup-5kDZT
                         <td>${renderStatusOp(m)}</td>
                         <td>${formatarData(m.created_at)}</td>
                         <td><div class="actions-cell">
                             <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
                             <button class="btn-action btn-manut" onclick="abrirModalManutencao('${m.id}')">🔩 Manutenção</button>
+======
+                        <td>${formatarData(m.created_at)}</td>
+                        <td><div class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+>>>>>> main
                             <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
                                 ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
                             </button>
@@ -611,6 +611,7 @@ async function confirmarExclusao() {
 /* ── MODAIS ── */
 function fecharModal()    { document.getElementById('modalForm').classList.remove('active'); }
 function fecharModalDel() { document.getElementById('modalDel').classList.remove('active'); }
+<<<<<< claude/supabase-sql-setup-5kDZT
 
 /* ── MODAL MANUTENÇÃO ── */
 function abrirModalManutencao(id) {
@@ -665,6 +666,8 @@ async function salvarManutencao() {
     fecharModalManutencao();
     await loadMaquinas();
 }
+======
+>>>>>> main
 
 document.querySelectorAll('.modal').forEach(m => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });

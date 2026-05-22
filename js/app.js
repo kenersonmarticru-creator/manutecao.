@@ -136,7 +136,7 @@ async function handleLogin(event) {
         saveSession(data);
         window.notifInit?.();  // ← adicionar
         window.pushInit?.();   // ← adicionar
-        window.location.href = 'ocorrencias.html';
+        window.location.href = 'menu.html';
 
     } catch (error) {
         console.error('Erro:', error);

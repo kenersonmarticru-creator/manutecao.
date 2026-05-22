@@ -28,7 +28,7 @@
         <div class="user-info">
             <span class="user-name" id="userName">Usuário</span>
             <span class="user-badge" id="userBadge">Admin</span>
-            <button class="btn-logout" id="btnLogoutMenu">Sair</button>
+            <span id="notif-slot"></span>
         </div>
     </div>
 
@@ -78,6 +78,12 @@
                 <span class="menu-icon">👥</span>
                 <span>Usuários</span>
             </a>
+        </div>
+        <div class="sidebar-footer">
+            <button class="sidebar-logout" id="btnLogoutMenu">
+                <span class="menu-icon">🚪</span>
+                <span>Sair</span>
+            </button>
         </div>
     </div>
 
@@ -159,6 +165,26 @@
                         <div class="module-stat-item">
                             <div class="module-stat-num" id="dashCheckProblemas" style="color:#ef4444">–</div>
                             <div class="module-stat-label">Problemas</div>
+                        </div>
+                    </div>
+                    <div class="module-card-footer"><span class="module-card-btn">Acessar →</span></div>
+                </a>
+
+                <!-- Máquinas Cadastradas -->
+                <a href="maquinas.html" class="module-card">
+                    <div class="module-card-header">
+                        <div class="module-card-icon" style="background:#d1fae5;">🏭</div>
+                        <h3 class="module-card-title">Máquinas Cadastradas</h3>
+                    </div>
+                    <p class="module-card-desc">Gerencie o catálogo de máquinas usadas no check-list diário.</p>
+                    <div class="module-stats-row">
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashMaqTotal">–</div>
+                            <div class="module-stat-label">Total</div>
+                        </div>
+                        <div class="module-stat-item">
+                            <div class="module-stat-num" id="dashMaqAtivas" style="color:#10b981">–</div>
+                            <div class="module-stat-label">Ativas</div>
                         </div>
                     </div>
                     <div class="module-card-footer"><span class="module-card-btn">Acessar →</span></div>
@@ -959,6 +985,13 @@
                     document.getElementById('dashUserAdmin').textContent = users.data.filter(r => r.perfil === 'admin').length;
                     document.getElementById('dashUserAtivo').textContent = users.data.filter(r => r.ativo !== false).length;
                 }
+                try {
+                    const maq = await db.from('maquinas').select('ativo');
+                    if (maq.data) {
+                        document.getElementById('dashMaqTotal').textContent  = maq.data.length;
+                        document.getElementById('dashMaqAtivas').textContent = maq.data.filter(r => r.ativo !== false).length;
+                    }
+                } catch(_) {}
             } catch(e) {
                 console.warn('[dashboard stats]', e);
             }
