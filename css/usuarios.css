@@ -112,10 +112,10 @@ tr:hover td  { background: #faf9ff; }
 
 /* ── BADGES ──────────────────────────────────────────────── */
 .badge     { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
-.b-admin   { background: #fef3c7; color: #92400e; }
-.b-manager { background: var(--blue-pale); color: #1e40af; }
-.b-operador{ background: var(--purple-pale); color: #4c1d95; }
-.b-viewer  { background: #f3f4f6; color: #374151; }
+.b-admin      { background: #fef3c7; color: #92400e; }
+.b-supervisor { background: var(--blue-pale); color: #1e40af; }
+.b-tecnico    { background: #d1fae5; color: #065f46; }
+.b-operador   { background: var(--purple-pale); color: #4c1d95; }
 .b-ativo   { background: var(--green-pale); color: #065f46; }
 .b-inativo { background: var(--red-pale); color: #991b1b; }
 /* ── AVATAR ──────────────────────────────────────────────── */
