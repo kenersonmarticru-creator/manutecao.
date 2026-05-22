@@ -54,27 +54,34 @@
         const style = document.createElement('style');
         style.id = 'notif-styles';
         style.textContent = `
-            /* ── Sino ── */
+            /* ── Sino (inline no header) ── */
             #notif-sino {
-                position: fixed;
-                top: 16px;
-                right: 16px;
-                z-index: 9999;
-                width: 44px;
-                height: 44px;
-                background: #1e293b;
-                border: 1px solid #334155;
+                position: relative;
+                width: 38px;
+                height: 38px;
+                background: rgba(255,255,255,0.10);
+                border: 1px solid rgba(255,255,255,0.18);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                 transition: background 0.2s, transform 0.15s;
                 user-select: none;
+                flex-shrink: 0;
             }
-            #notif-sino:hover { background: #334155; transform: scale(1.08); }
-            #notif-sino svg   { width: 22px; height: 22px; color: #94a3b8; }
+            #notif-sino:hover { background: rgba(255,255,255,0.20); transform: scale(1.08); }
+            #notif-sino svg   { width: 20px; height: 20px; color: rgba(255,255,255,0.85); }
+            /* fallback: se não houver slot no header */
+            #notif-sino.notif-fixo {
+                position: fixed;
+                top: 13px;
+                right: 16px;
+                z-index: 9999;
+                background: #1e293b;
+                border: 1px solid #334155;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
 
             #notif-badge {
                 position: absolute;
@@ -276,7 +283,14 @@
             <span id="notif-badge">0</span>
         `;
         sino.addEventListener('click', togglePainel);
-        document.body.appendChild(sino);
+
+        const slot = document.getElementById('notif-slot');
+        if (slot) {
+            slot.appendChild(sino);
+        } else {
+            sino.classList.add('notif-fixo');
+            document.body.appendChild(sino);
+        }
 
         // Painel
         const painel = document.createElement('div');

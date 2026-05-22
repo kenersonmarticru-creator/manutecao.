@@ -138,6 +138,33 @@ body {
     padding-top: 64px;
 }
 .sidebar.active { left: 0; }
+.sidebar-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--sidebar-bg);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 0;
+}
+.sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: calc(100% - 16px);
+    margin: 0 8px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #f87171;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: background 0.2s;
+}
+.sidebar-logout:hover { background: rgba(239,68,68,0.15); }
+.sidebar-logout .menu-icon { font-size: 16px; }
 .sidebar-header {
     padding: 20px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
