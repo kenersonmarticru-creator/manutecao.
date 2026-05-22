@@ -189,7 +189,7 @@
 
     <div class="stats">
         <div class="stat"><div class="stat-num" id="sTotal">–</div><div class="stat-lbl">Total</div></div>
-        <div class="stat s-admin"><div class="stat-num" id="sAdmin">–</div><div class="stat-lbl">Admins</div></div>
+        <div class="stat s-admin"><div class="stat-num" id="sAdmin">–</div><div class="stat-lbl">Administradores</div></div>
         <div class="stat s-ativo"><div class="stat-num" id="sAtivo">–</div><div class="stat-lbl">Ativos</div></div>
         <div class="stat s-inativo"><div class="stat-num" id="sInativo">–</div><div class="stat-lbl">Inativos</div></div>
     </div>
@@ -202,10 +202,10 @@
             <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar por nome, usuário, perfil...">
             <select class="filter-sel" id="filtPerfil">
                 <option value="">Todos os perfis</option>
-                <option value="admin">Admin</option>
-                <option value="manager">Gerente</option>
+                <option value="admin">Administrador</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="tecnico">Técnico</option>
                 <option value="operador">Operador</option>
-                <option value="viewer">Visualizador</option>
             </select>
             <select class="filter-sel" id="filtStatus">
                 <option value="">Todos</option>
@@ -247,9 +247,9 @@
                 <label class="form-label">Perfil *</label>
                 <select class="form-select" id="f_perfil" onchange="onPerfilChange()">
                     <option value="operador">Operador</option>
-                    <option value="viewer">Visualizador</option>
-                    <option value="manager">Gerente</option>
-                    <option value="admin">Admin</option>
+                    <option value="tecnico">Técnico</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="admin">Administrador</option>
                 </select>
             </div>
             <div class="form-group">
@@ -553,8 +553,8 @@ function initials(nome) {
     return (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase();
 }
 function perfilBadge(p) {
-    const map = { admin:'b-admin Admin', manager:'b-manager Gerente', operador:'b-operador Operador', viewer:'b-viewer Visualizador' };
-    const v = (map[p] || 'b-viewer ' + p).split(' ');
+    const map = { admin:'b-admin Administrador', supervisor:'b-manager Supervisor', tecnico:'b-tecnico Técnico', operador:'b-operador Operador' };
+    const v = (map[p] || 'b-operador ' + p).split(' ');
     return `<span class="badge ${v[0]}">${v.slice(1).join(' ')}</span>`;
 }
 
