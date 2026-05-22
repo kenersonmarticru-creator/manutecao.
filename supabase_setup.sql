@@ -78,3 +78,8 @@ CREATE POLICY "Acesso total a maquinas"
 ON maquinas FOR ALL
 USING (true)
 WITH CHECK (true);
+
+-- Colunas de manutenção (adicionadas depois)
+ALTER TABLE maquinas ADD COLUMN IF NOT EXISTS status_op       text    NOT NULL DEFAULT 'operando';
+ALTER TABLE maquinas ADD COLUMN IF NOT EXISTS pecas_trocar    jsonb   NOT NULL DEFAULT '[]';
+ALTER TABLE maquinas ADD COLUMN IF NOT EXISTS obs_manutencao  text    NOT NULL DEFAULT '';

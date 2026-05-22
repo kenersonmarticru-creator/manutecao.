@@ -31,6 +31,93 @@
         }
 
         /* Table */
+<<<<<< claude/supabase-sql-setup-5kDZT
+        .maq-table { width: 100%; border-collapse: collapse; }
+        .maq-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #64748b;
+            padding: 10px 14px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .maq-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #f8fafc;
+            font-size: 14px;
+            color: #334155;
+            vertical-align: middle;
+        }
+        .maq-table tr:last-child td { border-bottom: none; }
+        .maq-table tr:hover td { background: #f8fafc; }
+
+        .badge-ativo   { background: #dcfce7; color: #166534; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .badge-inativo { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .badge-codigo  { background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: monospace; }
+
+        .btn-action {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity .15s;
+        }
+        .btn-action:hover { opacity: .85; }
+        .btn-edit   { background: #f1f5f9; color: #1e293b; }
+        .btn-toggle-ativo   { background: #dcfce7; color: #166534; }
+        .btn-toggle-inativo { background: #fee2e2; color: #991b1b; }
+        .btn-del    { background: #fee2e2; color: #991b1b; }
+
+        .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        /* Form */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #374151; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+        }
+
+
+        .empty-state { text-align:center; padding: 48px 20px; color:#94a3b8; }
+        .empty-state .icon { font-size:48px; margin-bottom:12px; }
+
+        @media(max-width:768px){ .main { padding: 16px 12px; } .hero-strip { padding: 18px 16px !important; } }
+
+        /* Status operacional badges */
+        .status-op-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .status-op-operando { background:#dcfce7; color:#166534; }
+        .status-op-revisao  { background:#fef9c3; color:#854d0e; }
+        .status-op-parada   { background:#fee2e2; color:#991b1b; }
+
+        /* Manutenção modal styles */
+        .pecas-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:4px; }
+        @media(max-width:480px){ .pecas-grid { grid-template-columns:1fr; } }
+        .peca-check-label { display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 10px; border:1px solid #e2e8f0; border-radius:7px; cursor:pointer; transition:background .15s; }
+        .peca-check-label:hover { background:#f8fafc; }
+        .peca-check-label input { margin:0; cursor:pointer; }
+        .peca-grupo-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#64748b; margin:14px 0 6px; border-bottom:1px solid #f1f5f9; padding-bottom:4px; }
+        .status-radio-wrap { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+        .status-radio-label { display:flex; align-items:center; gap:6px; font-size:13px; padding:8px 14px; border:2px solid #e2e8f0; border-radius:8px; cursor:pointer; transition:all .15s; }
+        .status-radio-label input { margin:0; cursor:pointer; }
+        .status-radio-label:has(input:checked) { border-color:#6366f1; background:#f0f0ff; }
+        .btn-manut { background:#f0f0ff; color:#4f46e5; }
+======
         .maq-table { width:100%; border-collapse:collapse; }
         .maq-table th { text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; padding:10px 14px; border-bottom:2px solid #f1f5f9; }
         .maq-table td { padding:13px 14px; border-bottom:1px solid #f8fafc; font-size:14px; color:#334155; vertical-align:middle; }
@@ -53,6 +140,7 @@
         .empty-state .icon { font-size:48px; margin-bottom:12px; }
 
         @media(max-width:768px){ .main { padding: 16px 12px; } .hero-strip { padding: 18px 16px !important; } }
+>>>>>> main
     </style>
 </head>
 <body>
@@ -129,6 +217,8 @@
         <div class="stat-card"><div class="stat-number" id="statTotal">–</div><div class="stat-label">Total</div></div>
         <div class="stat-card"><div class="stat-number" id="statAtivas" style="color:#10b981">–</div><div class="stat-label">Ativas</div></div>
         <div class="stat-card"><div class="stat-number" id="statInativas" style="color:#ef4444">–</div><div class="stat-label">Inativas</div></div>
+        <div class="stat-card"><div class="stat-number" id="statRevisao" style="color:#d97706">–</div><div class="stat-label">Em Revisão</div></div>
+        <div class="stat-card"><div class="stat-number" id="statParada" style="color:#ef4444">–</div><div class="stat-label">Paradas</div></div>
     </div>
 
     <!-- LISTA -->
@@ -161,7 +251,11 @@
             <h2 id="modalTitle">➕ Nova Máquina</h2>
             <button class="modal-close" onclick="fecharModal()">×</button>
         </div>
+<<<<<< claude/supabase-sql-setup-5kDZT
+        <div id="alertForm" class="alert"></div>
+======
         <div id="alertForm" class="alert" style="display:none"></div>
+>>>>>> main
         <div class="form-grid">
             <div class="form-group">
                 <label>Código / Número *</label>
@@ -183,6 +277,43 @@
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
             <button class="btn" id="btnSalvar" onclick="salvarMaquina()">💾 Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL MANUTENÇÃO -->
+<div class="modal" id="modalManutencao">
+    <div class="modal-content" style="max-width:640px">
+        <div class="modal-header">
+            <h2 id="manutTitle">🔩 Manutenção</h2>
+            <button class="modal-close" onclick="fecharModalManutencao()">×</button>
+        </div>
+        <div id="alertManut" class="alert"></div>
+        <div style="max-height:70vh;overflow-y:auto;padding:2px 4px">
+
+            <div class="form-group">
+                <label>Status Operacional</label>
+                <div class="status-radio-wrap">
+                    <label class="status-radio-label"><input type="radio" name="statusOp" value="operando"> ✓ Operando</label>
+                    <label class="status-radio-label"><input type="radio" name="statusOp" value="revisao"> 🔧 Em Revisão</label>
+                    <label class="status-radio-label"><input type="radio" name="statusOp" value="parada"> ⛔ Parada para Manutenção</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Peças para Trocar</label>
+                <div id="pecasContainer"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Observações</label>
+                <textarea id="manutObs" rows="3" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical" placeholder="Descreva o problema, serviço necessário, etc."></textarea>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="fecharModalManutencao()">Cancelar</button>
+            <button class="btn" id="btnSalvarManut" onclick="salvarManutencao()">💾 Salvar</button>
         </div>
     </div>
 </div>
@@ -210,7 +341,15 @@ const SUPABASE_URL = 'https://wcfrwsgnxochxvwhxnvy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZnJ3c2dueG9jaHh2d2h4bnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MzExMDgsImV4cCI6MjA4MzIwNzEwOH0.Yb4cT5chXp3S8NZaWbLpv436HzxGCO7CZTruPpOPDdU';
 
 let db, currentUser;
-let allMaquinas = [], editingId = null, deleteTargetId = null;
+let allMaquinas = [], editingId = null, deleteTargetId = null, manutencaoId = null;
+
+const PECAS = [
+    { grupo: '🔧 Motor e Alimentação', itens: ['Motor (combustão GLP/Diesel ou elétrico)','Bateria Tracionária e Carregadores','Filtros (óleo, combustível, ar e hidráulico)','Alternador e Motor de Partida','Correias e Polias'] },
+    { grupo: '🦾 Sistema Hidráulico', itens: ['Bomba Hidráulica','Comandos Hidráulicos (Alavancas)','Cilindros de Elevação e Inclinação','Mangueiras e Conexões Hidráulicas','Motor de Elevação / Válvulas de Retenção'] },
+    { grupo: '🏗️ Torre e Garfos', itens: ['Mastro (Torre de Elevação)','Carro Porta-Garfos','Garfos','Correntes de Elevação e Roldanas','Deslocamento Lateral (Side Shift)'] },
+    { grupo: '🛑 Freios e Rodagem', itens: ['Pneus e Rodas','Sistema de Freios (cilindro mestre, lonas, tambor, cilindro de roda)','Eixo Direcional','Rolamentos e Cubos de Roda'] },
+    { grupo: '💺 Cabine e Elétrica', itens: ['Assento (Banco) do Operador','Painel de Monitoramento (Display)','Pedais (acelerador, freio, pedal de presença)','Coluna de Direção e Volante','Faróis, Lanternas e Sinalizadores (Giroflex)'] }
+];
 
 /* ── BOOT ── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -224,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     setupSidebar();
     setupBusca();
+    buildPecasContainer();
     loadMaquinas();
     window.notifInit?.();
     window.pushInit?.();
@@ -249,6 +389,23 @@ function setupSidebar() {
     });
 }
 
+/* ── PEÇAS ── */
+function buildPecasContainer() {
+    const el = document.getElementById('pecasContainer');
+    if (!el) return;
+    el.innerHTML = PECAS.map(grupo => `
+        <div class="peca-grupo-title">${grupo.grupo}</div>
+        <div class="pecas-grid">
+            ${grupo.itens.map(item => `
+                <label class="peca-check-label">
+                    <input type="checkbox" class="peca-checkbox" value="${esc(item)}">
+                    <span>${esc(item)}</span>
+                </label>
+            `).join('')}
+        </div>
+    `).join('');
+}
+
 /* ── BUSCA ── */
 function setupBusca() {
     document.getElementById('searchInput').addEventListener('input', renderTabela);
@@ -270,9 +427,20 @@ async function loadMaquinas() {
 function atualizarStats() {
     const ativas   = allMaquinas.filter(m => m.ativo !== false).length;
     const inativas = allMaquinas.filter(m => m.ativo === false).length;
-    document.getElementById('statTotal').textContent   = allMaquinas.length;
-    document.getElementById('statAtivas').textContent  = ativas;
+    const revisao  = allMaquinas.filter(m => m.status_op === 'revisao').length;
+    const parada   = allMaquinas.filter(m => m.status_op === 'parada').length;
+    document.getElementById('statTotal').textContent    = allMaquinas.length;
+    document.getElementById('statAtivas').textContent   = ativas;
     document.getElementById('statInativas').textContent = inativas;
+    document.getElementById('statRevisao').textContent  = revisao;
+    document.getElementById('statParada').textContent   = parada;
+}
+
+function renderStatusOp(m) {
+    const s = m.status_op || 'operando';
+    if (s === 'revisao') return '<span class="status-op-badge status-op-revisao">🔧 Em Revisão</span>';
+    if (s === 'parada')  return '<span class="status-op-badge status-op-parada">⛔ Parada</span>';
+    return '<span class="status-op-badge status-op-operando">✓ Operando</span>';
 }
 
 function renderTabela() {
@@ -296,12 +464,20 @@ function renderTabela() {
         container.innerHTML = lista.map(m => `<div class="cl-card">
             <div class="cl-card-top">
                 <span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span>
+<<<<<< claude/supabase-sql-setup-5kDZT
+                ${renderStatusOp(m)}
+======
+>>>>>> main
                 <span class="cl-card-date">${formatarData(m.created_at)}</span>
             </div>
             <div class="cl-card-name">${esc(m.nome || '–')}</div>
             <div class="cl-card-sub"><span class="badge-codigo">${esc(m.codigo)}</span></div>
             <div class="cl-card-actions">
                 <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+<<<<<< claude/supabase-sql-setup-5kDZT
+                <button class="btn-action btn-manut" onclick="abrirModalManutencao('${m.id}')">🔩 Manutenção</button>
+======
+>>>>>> main
                 <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
                     ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
                 </button>
@@ -314,7 +490,11 @@ function renderTabela() {
     container.innerHTML = `<div class="table-container">
         <table class="maq-table" style="min-width:0">
             <thead><tr>
+<<<<<< claude/supabase-sql-setup-5kDZT
+                <th>Código</th><th>Nome / Descrição</th><th>Status</th><th>Op. Status</th><th>Criado em</th><th>Ações</th>
+======
                 <th>Código</th><th>Nome / Descrição</th><th>Status</th><th>Criado em</th><th>Ações</th>
+>>>>>> main
             </tr></thead>
             <tbody>
                 ${lista.map(m => `
@@ -322,9 +502,17 @@ function renderTabela() {
                         <td><span class="badge-codigo">${esc(m.codigo)}</span></td>
                         <td>${esc(m.nome || '–')}</td>
                         <td><span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span></td>
+<<<<<< claude/supabase-sql-setup-5kDZT
+                        <td>${renderStatusOp(m)}</td>
                         <td>${formatarData(m.created_at)}</td>
                         <td><div class="actions-cell">
                             <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+                            <button class="btn-action btn-manut" onclick="abrirModalManutencao('${m.id}')">🔩 Manutenção</button>
+======
+                        <td>${formatarData(m.created_at)}</td>
+                        <td><div class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+>>>>>> main
                             <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
                                 ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
                             </button>
@@ -423,6 +611,63 @@ async function confirmarExclusao() {
 /* ── MODAIS ── */
 function fecharModal()    { document.getElementById('modalForm').classList.remove('active'); }
 function fecharModalDel() { document.getElementById('modalDel').classList.remove('active'); }
+<<<<<< claude/supabase-sql-setup-5kDZT
+
+/* ── MODAL MANUTENÇÃO ── */
+function abrirModalManutencao(id) {
+    const m = allMaquinas.find(x => x.id === id);
+    if (!m) return;
+    manutencaoId = id;
+    document.getElementById('manutTitle').textContent = `🔩 Manutenção — ${m.nome} (${m.codigo})`;
+
+    // Status operacional
+    const statusAtual = m.status_op || 'operando';
+    document.querySelectorAll('input[name="statusOp"]').forEach(r => {
+        r.checked = r.value === statusAtual;
+    });
+
+    // Peças para trocar
+    const pecasSalvas = Array.isArray(m.pecas_trocar) ? m.pecas_trocar : [];
+    document.querySelectorAll('.peca-checkbox').forEach(cb => {
+        cb.checked = pecasSalvas.includes(cb.value);
+    });
+
+    // Observações
+    document.getElementById('manutObs').value = m.obs_manutencao || '';
+
+    hideAlert('alertManut');
+    document.getElementById('modalManutencao').classList.add('active');
+}
+
+function fecharModalManutencao() {
+    document.getElementById('modalManutencao').classList.remove('active');
+}
+
+async function salvarManutencao() {
+    const statusOp = document.querySelector('input[name="statusOp"]:checked')?.value || 'operando';
+    const pecasTrocar = [...document.querySelectorAll('.peca-checkbox:checked')].map(cb => cb.value);
+    const obsManutencao = document.getElementById('manutObs').value.trim();
+
+    const btn = document.getElementById('btnSalvarManut');
+    btn.disabled = true;
+    btn.textContent = '⏳ Salvando...';
+
+    const { error } = await db.from('maquinas')
+        .update({ status_op: statusOp, pecas_trocar: pecasTrocar, obs_manutencao: obsManutencao, updated_at: new Date().toISOString() })
+        .eq('id', manutencaoId);
+
+    btn.disabled = false;
+    btn.textContent = '💾 Salvar';
+
+    if (error) {
+        showAlert('alertManut', 'Erro ao salvar: ' + error.message, 'err');
+        return;
+    }
+    fecharModalManutencao();
+    await loadMaquinas();
+}
+======
+>>>>>> main
 
 document.querySelectorAll('.modal').forEach(m => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
