@@ -73,10 +73,11 @@
         <div class="menu-section">
             <div class="menu-section-title">Cadastros</div>
             <a href="equipamentos.html" class="menu-item"><span class="menu-icon">🔧</span><span>Cadastro de Equipamentos</span></a>
-            <div class="menu-item" id="menuUsuarios">
+            <a href="maquinas.html" class="menu-item"><span class="menu-icon">🏭</span><span>Máquinas Cadastradas</span></a>
+            <a href="usuarios.html" class="menu-item" id="menuUsuarios">
                 <span class="menu-icon">👥</span>
                 <span>Usuários</span>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -164,7 +165,7 @@
                 </a>
 
                 <!-- Cadastro de Usuários -->
-                <div class="module-card" onclick="goToSection('usuarios', menuUsuarios)">
+                <a href="usuarios.html" class="module-card" id="cardUsuarios">
                     <div class="module-card-header">
                         <div class="module-card-icon" style="background:#ede9fe;">👥</div>
                         <h3 class="module-card-title">Cadastro de Usuários</h3>
@@ -185,54 +186,7 @@
                         </div>
                     </div>
                     <div class="module-card-footer"><span class="module-card-btn">Acessar →</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── USUARIOS ── -->
-        <div class="content-section" id="usuarios">
-            <div class="card">
-                <h2>👤 Cadastrar Novo Usuário</h2>
-                <div id="alertUsuarios"></div>
-                
-                <form id="formUsuario">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nome Completo *</label>
-                            <input type="text" id="usuarioNome" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Usuário *</label>
-                            <input type="text" id="usuarioLogin" required>
-                        </div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Senha *</label>
-                            <input type="password" id="usuarioSenha" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Perfil *</label>
-                            <select id="usuarioPerfil" required>
-                                <option value="">Selecione...</option>
-                                <option value="admin">Administrador</option>
-                                <option value="tecnico">Técnico</option>
-                                <option value="usuario">Usuário</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn">Cadastrar Usuário</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2>📋 Usuários Cadastrados</h2>
-                <div id="listaUsuarios">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Carregando usuários...</p>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -588,6 +542,56 @@
                             Editar Manutenções
                         </label>
                     </div>
+                </div>
+
+                <h3 style="margin-top: 20px;">Permissões de Check-list</h3>
+                <div class="permissions-grid">
+                    <div class="permission-item">
+                        <label>
+                            <input type="checkbox" id="permChecklistVisualizar">
+                            Visualizar Painel
+                        </label>
+                    </div>
+                    <div class="permission-item">
+                        <label>
+                            <input type="checkbox" id="permChecklistCriar">
+                            Preencher Check-list
+                        </label>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 20px;">🏭 Máquina por Equipamento</h3>
+                <div style="margin-bottom: 8px; font-size: 13px; color: #555;">
+                    Restrinja este usuário a operar apenas máquinas/equipamentos específicos no check-list.
+                </div>
+                <div class="permissions-grid" style="margin-bottom: 8px;">
+                    <div class="permission-item">
+                        <label>
+                            <input type="radio" name="modoMaquinas" id="maqTodas" value="todas" checked onchange="toggleMaquinasInput()">
+                            Todas as máquinas
+                        </label>
+                    </div>
+                    <div class="permission-item">
+                        <label>
+                            <input type="radio" name="modoMaquinas" id="maqEspecificas" value="especificas" onchange="toggleMaquinasInput()">
+                            Apenas máquinas específicas
+                        </label>
+                    </div>
+                </div>
+                <div id="maquinasPermArea" style="display:none; margin-top: 8px;">
+                    <div id="maquinasPermTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;"></div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="maquinaPermInput" placeholder="Ex: EMP-01, M-12..."
+                               style="flex:1; padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:14px;"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarMaquinaPerm();}">
+                        <button type="button" onclick="adicionarMaquinaPerm()"
+                                style="padding:8px 14px; background:#0284c7; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px;">
+                            + Adicionar
+                        </button>
+                    </div>
+                    <p style="font-size:12px; color:#888; margin-top:6px;">
+                        O usuário só poderá selecionar as máquinas listadas acima ao preencher o check-list.
+                    </p>
                 </div>
 
                 <div class="modal-footer">
@@ -974,6 +978,8 @@
 
                 if (!hasPermission('perm_usuarios_visualizar')) {
                     menuUsuarios.style.display = 'none';
+                    const cardU = document.getElementById('cardUsuarios');
+                    if (cardU) cardU.style.display = 'none';
                 }
                 if (!hasPermission('perm_predial_visualizar')) {
                     menuPredial.style.display = 'none';
@@ -993,17 +999,13 @@
                 }
 
                 setupMenuClick(menuDashboard, 'dashboard');
-                setupMenuClick(menuUsuarios, 'usuarios');
                 setupMenuClick(menuPredial, 'predial');
                 setupMenuClick(menuEquipamentos, 'equipamentos');
                 setupMenuClick(menuOcorrencias, 'ocorrencias');
 
                 document.getElementById('btnLogoutMenu').addEventListener('click', handleLogout);
-                document.getElementById('formUsuario').addEventListener('submit', handleCadastroUsuario);
                 document.getElementById('formPredial').addEventListener('submit', handleManutencaoPredial);
                 document.getElementById('formEquipamento').addEventListener('submit', handleManutencaoEquipamento);
-                document.getElementById('formEditUsuario').addEventListener('submit', salvarEdicaoUsuario);
-                document.getElementById('formPermissoes').addEventListener('submit', salvarPermissoes);
                 document.getElementById('formEditPredial').addEventListener('submit', salvarEdicaoPredial);
                 document.getElementById('formEditEquip').addEventListener('submit', salvarEdicaoEquip);
 
@@ -1014,11 +1016,9 @@
                 });
 
                 loadDashboardStats();
-                loadUsuarios();
                 loadManutencoesPrediais();
                 loadManutencoesEquipamentos();
                 loadOcorrencias();
-                populateFiltroUsuarios();
             }
         });
     </script>

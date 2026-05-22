@@ -3,6 +3,38 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 let db;
 let currentUser = null;
+let maquinasPermLista = [];
+
+function toggleMaquinasInput() {
+    const modo = document.querySelector('input[name="modoMaquinas"]:checked')?.value;
+    document.getElementById('maquinasPermArea').style.display = modo === 'especificas' ? 'block' : 'none';
+}
+
+function renderMaquinasTags() {
+    const container = document.getElementById('maquinasPermTags');
+    if (!container) return;
+    container.innerHTML = maquinasPermLista.map((m, i) =>
+        `<span style="display:inline-flex;align-items:center;gap:6px;background:#e0f2fe;color:#0369a1;padding:4px 10px;border-radius:20px;font-size:13px;font-weight:600;">
+            🏭 ${m}
+            <button type="button" onclick="removerMaquinaPerm(${i})"
+                    style="background:none;border:none;cursor:pointer;color:#0369a1;font-size:15px;line-height:1;padding:0;">×</button>
+        </span>`
+    ).join('');
+}
+
+function adicionarMaquinaPerm() {
+    const input = document.getElementById('maquinaPermInput');
+    const val = input.value.trim();
+    if (!val) return;
+    val.split(',').map(v => v.trim()).filter(v => v && !maquinasPermLista.includes(v)).forEach(v => maquinasPermLista.push(v));
+    input.value = '';
+    renderMaquinasTags();
+}
+
+function removerMaquinaPerm(i) {
+    maquinasPermLista.splice(i, 1);
+    renderMaquinasTags();
+}
 
 function initSupabase() {
     if (typeof window.supabase === 'undefined') {
@@ -187,7 +219,27 @@ function getDefaultPermissions(perfil) {
             perm_predial_editar: true,
             perm_equipamentos_visualizar: true,
             perm_equipamentos_criar: true,
-            perm_equipamentos_editar: true
+            perm_equipamentos_editar: true,
+            perm_checklist_visualizar: true,
+            perm_checklist_criar: true,
+            maquinas_permitidas: []
+        };
+    } else if (perfil === 'supervisor') {
+        return {
+            perm_usuarios_visualizar: true,
+            perm_usuarios_criar: false,
+            perm_usuarios_editar: false,
+            perm_usuarios_excluir: false,
+            perm_usuarios_permissoes: false,
+            perm_predial_visualizar: true,
+            perm_predial_criar: true,
+            perm_predial_editar: true,
+            perm_equipamentos_visualizar: true,
+            perm_equipamentos_criar: true,
+            perm_equipamentos_editar: true,
+            perm_checklist_visualizar: true,
+            perm_checklist_criar: true,
+            maquinas_permitidas: []
         };
     } else if (perfil === 'tecnico') {
         return {
@@ -201,7 +253,10 @@ function getDefaultPermissions(perfil) {
             perm_predial_editar: true,
             perm_equipamentos_visualizar: true,
             perm_equipamentos_criar: true,
-            perm_equipamentos_editar: true
+            perm_equipamentos_editar: true,
+            perm_checklist_visualizar: true,
+            perm_checklist_criar: true,
+            maquinas_permitidas: []
         };
     } else {
         return {
@@ -215,7 +270,10 @@ function getDefaultPermissions(perfil) {
             perm_predial_editar: false,
             perm_equipamentos_visualizar: true,
             perm_equipamentos_criar: false,
-            perm_equipamentos_editar: false
+            perm_equipamentos_editar: false,
+            perm_checklist_visualizar: false,
+            perm_checklist_criar: false,
+            maquinas_permitidas: []
         };
     }
 }
@@ -402,6 +460,19 @@ async function editarPermissoes(userId) {
         document.getElementById('permEquipamentosVisualizar').checked = data.perm_equipamentos_visualizar;
         document.getElementById('permEquipamentosCriar').checked = data.perm_equipamentos_criar;
         document.getElementById('permEquipamentosEditar').checked = data.perm_equipamentos_editar;
+        document.getElementById('permChecklistVisualizar').checked = data.perm_checklist_visualizar || false;
+        document.getElementById('permChecklistCriar').checked = data.perm_checklist_criar || false;
+
+        const maqArr = Array.isArray(data.maquinas_permitidas) ? data.maquinas_permitidas : [];
+        maquinasPermLista = [...maqArr];
+        if (maqArr.length === 0) {
+            document.getElementById('maqTodas').checked = true;
+            document.getElementById('maquinasPermArea').style.display = 'none';
+        } else {
+            document.getElementById('maqEspecificas').checked = true;
+            document.getElementById('maquinasPermArea').style.display = 'block';
+        }
+        renderMaquinasTags();
 
         openModal('modalPermissoes');
     } catch (error) {
@@ -415,6 +486,7 @@ async function salvarPermissoes(event) {
 
     const id = document.getElementById('permUsuarioId').value;
 
+    const modoMaq = document.querySelector('input[name="modoMaquinas"]:checked')?.value;
     const permissoes = {
         perm_usuarios_visualizar: document.getElementById('permUsuariosVisualizar').checked,
         perm_usuarios_criar: document.getElementById('permUsuariosCriar').checked,
@@ -426,7 +498,10 @@ async function salvarPermissoes(event) {
         perm_predial_editar: document.getElementById('permPredialEditar').checked,
         perm_equipamentos_visualizar: document.getElementById('permEquipamentosVisualizar').checked,
         perm_equipamentos_criar: document.getElementById('permEquipamentosCriar').checked,
-        perm_equipamentos_editar: document.getElementById('permEquipamentosEditar').checked
+        perm_equipamentos_editar: document.getElementById('permEquipamentosEditar').checked,
+        perm_checklist_visualizar: document.getElementById('permChecklistVisualizar').checked,
+        perm_checklist_criar: document.getElementById('permChecklistCriar').checked,
+        maquinas_permitidas: modoMaq === 'especificas' ? maquinasPermLista : []
     };
 
     try {
