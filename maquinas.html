@@ -13,163 +13,46 @@
     <style>
         .main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
 
-        .hero-strip {
-            background: linear-gradient(135deg, #0f172a, #1e3a5f);
-            color: white;
-            border-radius: 16px;
-            padding: 24px 28px;
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+        /* Hero dark navy (this page) */
+        .hero-strip { background: linear-gradient(135deg, #0f172a, #1e3a5f) !important; }
         .hero-strip h2 { font-size: 22px; margin: 0 0 4px; }
         .hero-strip p  { margin: 0; opacity: .75; font-size: 14px; }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 18px 20px;
-            text-align: center;
-        }
-        .stat-number { font-size: 28px; font-weight: 800; color: #1e293b; }
-        .stat-label  { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
+        .card-title  { font-size: 17px; font-weight: 700; color: #1e293b; }
 
-        .card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .card-title { font-size: 17px; font-weight: 700; color: #1e293b; }
-
-        .search-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
+        .search-bar { display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
         .search-bar input, .search-bar select {
-            flex: 1;
-            min-width: 180px;
-            padding: 10px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
+            flex:1; min-width:180px; padding:10px 14px;
+            border:1px solid #e2e8f0; border-radius:8px; font-size:14px; font-family:inherit;
         }
         .search-bar input:focus, .search-bar select:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+            outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.1);
         }
 
         /* Table */
-        .maq-table { width: 100%; border-collapse: collapse; }
-        .maq-table th {
-            text-align: left;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: #64748b;
-            padding: 10px 14px;
-            border-bottom: 2px solid #f1f5f9;
-        }
-        .maq-table td {
-            padding: 13px 14px;
-            border-bottom: 1px solid #f8fafc;
-            font-size: 14px;
-            color: #334155;
-            vertical-align: middle;
-        }
-        .maq-table tr:last-child td { border-bottom: none; }
-        .maq-table tr:hover td { background: #f8fafc; }
+        .maq-table { width:100%; border-collapse:collapse; }
+        .maq-table th { text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; padding:10px 14px; border-bottom:2px solid #f1f5f9; }
+        .maq-table td { padding:13px 14px; border-bottom:1px solid #f8fafc; font-size:14px; color:#334155; vertical-align:middle; }
+        .maq-table tr:last-child td { border-bottom:none; }
+        .maq-table tr:hover td { background:#f8fafc; }
 
-        .badge-ativo   { background: #dcfce7; color: #166534; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-        .badge-inativo { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-        .badge-codigo  { background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: monospace; }
+        .badge-ativo   { background:#dcfce7; color:#166534; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .badge-inativo { background:#fee2e2; color:#991b1b; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .badge-codigo  { background:#e0e7ff; color:#3730a3; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; font-family:monospace; }
 
-        .btn-action {
-            padding: 6px 14px;
-            border: none;
-            border-radius: 7px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-            transition: opacity .15s;
-        }
-        .btn-action:hover { opacity: .85; }
-        .btn-edit   { background: #f1f5f9; color: #1e293b; }
-        .btn-toggle-ativo   { background: #dcfce7; color: #166534; }
-        .btn-toggle-inativo { background: #fee2e2; color: #991b1b; }
-        .btn-del    { background: #fee2e2; color: #991b1b; }
+        .btn-action { padding:6px 14px; border:none; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity .15s; }
+        .btn-action:hover { opacity:.85; }
+        .btn-edit           { background:#f1f5f9; color:#1e293b; }
+        .btn-toggle-ativo   { background:#dcfce7; color:#166534; }
+        .btn-toggle-inativo { background:#fee2e2; color:#991b1b; }
+        .btn-del            { background:#fee2e2; color:#991b1b; }
+        .actions-cell { display:flex; gap:6px; flex-wrap:wrap; }
 
-        .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
-
-        /* Form */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 13px; font-weight: 600; color: #374151; }
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 10px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,.1);
-        }
-
-        /* Modal */
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; padding:16px; }
-        .modal.open { display:flex; }
-        .modal-box { background:white; border-radius:16px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; }
-        .modal-head {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 24px 0;
-        }
-        .modal-head h2 { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
-        .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:#64748b; padding:0; }
-        .modal-body { padding: 20px 24px; }
-        .modal-foot { padding: 16px 24px 20px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid #f1f5f9; }
-
-        .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; margin-bottom: 16px; display: none; }
-        .alert.ok  { background:#dcfce7; color:#166534; display:block; }
-        .alert.err { background:#fee2e2; color:#991b1b; display:block; }
-
-        .empty-state { text-align:center; padding: 48px 20px; color:#94a3b8; }
+        .empty-state { text-align:center; padding:48px 20px; color:#94a3b8; }
         .empty-state .icon { font-size:48px; margin-bottom:12px; }
 
-        .btn { padding:10px 20px; background:#0f172a; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
-        .btn:hover { background:#1e293b; }
-        .btn-secondary { background:#f1f5f9; color:#374151; }
-        .btn-secondary:hover { background:#e2e8f0; }
-        .btn-hero { padding:10px 22px; background:white; color:#0f172a; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
-        .btn-hero:hover { background:#f1f5f9; }
+        @media(max-width:600px){ .maq-table th:nth-child(3), .maq-table td:nth-child(3) { display:none; } }
     </style>
 </head>
 <body>
@@ -273,33 +156,31 @@
 
 <!-- MODAL NOVA / EDITAR -->
 <div class="modal" id="modalForm">
-    <div class="modal-box">
-        <div class="modal-head">
+    <div class="modal-content" style="max-width:520px">
+        <div class="modal-header">
             <h2 id="modalTitle">➕ Nova Máquina</h2>
             <button class="modal-close" onclick="fecharModal()">×</button>
         </div>
-        <div class="modal-body">
-            <div id="alertForm" class="alert"></div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Código / Número *</label>
-                    <input id="f_codigo" placeholder="Ex: EMP-01, M-12, 003" maxlength="30">
-                    <small style="color:#64748b;font-size:12px;">Identificador único (ex: EMP-01)</small>
-                </div>
-                <div class="form-group">
-                    <label>Nome / Descrição *</label>
-                    <input id="f_nome" placeholder="Ex: Empilhadeira 01">
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="f_ativo">
-                        <option value="true">Ativa</option>
-                        <option value="false">Inativa</option>
-                    </select>
-                </div>
+        <div id="alertForm" class="alert" style="display:none"></div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Código / Número *</label>
+                <input id="f_codigo" placeholder="Ex: EMP-01, M-12, 003" maxlength="30">
+                <small style="color:#94a3b8;font-size:12px;">Identificador único (ex: EMP-01)</small>
+            </div>
+            <div class="form-group">
+                <label>Nome / Descrição *</label>
+                <input id="f_nome" placeholder="Ex: Empilhadeira 01">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="f_ativo">
+                    <option value="true">Ativa</option>
+                    <option value="false">Inativa</option>
+                </select>
             </div>
         </div>
-        <div class="modal-foot">
+        <div class="modal-footer">
             <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
             <button class="btn" id="btnSalvar" onclick="salvarMaquina()">💾 Salvar</button>
         </div>
@@ -308,18 +189,16 @@
 
 <!-- MODAL CONFIRMAR EXCLUSÃO -->
 <div class="modal" id="modalDel">
-    <div class="modal-box" style="max-width:380px">
-        <div class="modal-head">
+    <div class="modal-content" style="max-width:400px">
+        <div class="modal-header">
             <h2>⚠️ Excluir Máquina</h2>
             <button class="modal-close" onclick="fecharModalDel()">×</button>
         </div>
-        <div class="modal-body">
-            <p>Tem certeza que deseja excluir a máquina <strong id="delNome"></strong>?</p>
-            <p style="font-size:13px;color:#64748b;">Esta ação não pode ser desfeita.</p>
-        </div>
-        <div class="modal-foot">
+        <p style="margin:0 0 8px">Tem certeza que deseja excluir a máquina <strong id="delNome"></strong>?</p>
+        <p style="font-size:13px;color:#64748b;margin:0">Esta ação não pode ser desfeita.</p>
+        <div class="modal-footer">
             <button class="btn btn-secondary" onclick="fecharModalDel()">Cancelar</button>
-            <button class="btn" style="background:#ef4444" onclick="confirmarExclusao()">🗑️ Excluir</button>
+            <button class="btn btn-danger" onclick="confirmarExclusao()">🗑️ Excluir</button>
         </div>
     </div>
 </div>
@@ -460,7 +339,7 @@ function abrirModalNova() {
     document.getElementById('f_ativo').value  = 'true';
     document.getElementById('f_codigo').disabled = false;
     hideAlert('alertForm');
-    document.getElementById('modalForm').classList.add('open');
+    document.getElementById('modalForm').classList.add('active');
 }
 
 /* ── EDITAR ── */
@@ -474,7 +353,7 @@ function editarMaquina(id) {
     document.getElementById('f_ativo').value  = String(m.ativo !== false);
     document.getElementById('f_codigo').disabled = true;
     hideAlert('alertForm');
-    document.getElementById('modalForm').classList.add('open');
+    document.getElementById('modalForm').classList.add('active');
 }
 
 /* ── SALVAR ── */
@@ -525,7 +404,7 @@ async function toggleAtivo(id, atualAtivo) {
 function pedirExclusao(id, codigo) {
     deleteTargetId = id;
     document.getElementById('delNome').textContent = codigo;
-    document.getElementById('modalDel').classList.add('open');
+    document.getElementById('modalDel').classList.add('active');
 }
 
 async function confirmarExclusao() {
@@ -536,11 +415,11 @@ async function confirmarExclusao() {
 }
 
 /* ── MODAIS ── */
-function fecharModal()    { document.getElementById('modalForm').classList.remove('open'); }
-function fecharModalDel() { document.getElementById('modalDel').classList.remove('open'); }
+function fecharModal()    { document.getElementById('modalForm').classList.remove('active'); }
+function fecharModalDel() { document.getElementById('modalDel').classList.remove('active'); }
 
 document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
 });
 
 /* ── HELPERS ── */
@@ -553,7 +432,7 @@ function formatarData(iso) {
 function showAlert(id, msg, tipo) {
     const el = document.getElementById(id);
     el.textContent = msg;
-    el.className = 'alert ' + tipo;
+    el.className = 'alert ' + (tipo === 'err' ? 'alert-error' : 'alert-success') + ' show';
 }
 function hideAlert(id) {
     const el = document.getElementById(id);
