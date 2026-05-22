@@ -264,6 +264,7 @@ function setupNav() {
     const ov  = document.getElementById('sidebarOverlay');
     hb.addEventListener('click', () => { hb.classList.toggle('active'); sb.classList.toggle('active'); ov.classList.toggle('active'); });
     ov.addEventListener('click', () => { hb.classList.remove('active'); sb.classList.remove('active'); ov.classList.remove('active'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { fecharModalProblemas(); } });
 }
 
 // ── DATA ──
@@ -278,7 +279,7 @@ async function loadEquipamentos() {
 async function loadChecklists() {
     try {
         const { data, error } = await db.from('checklist_diario')
-            .select('id,numero_maquina,total_problemas,created_at,data')
+            .select('id,numero_maquina,total_problemas,created_at,data,respostas,operador,horimetro')
             .order('created_at', { ascending: false })
             .limit(500);
         if (error) throw error;
@@ -348,7 +349,7 @@ function renderResumo() {
         const barClass  = pct === null ? '' : pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
         const lastDt    = st.ultimo ? new Date(st.ultimo).toLocaleDateString('pt-BR') : '–';
 
-        return `<div class="equip-card">
+        return `<div class="equip-card" onclick="verProblemasMaquina('${num}')" style="cursor:pointer">
             <div class="equip-card-header">
                 <div>
                     <div class="equip-card-title">
@@ -358,7 +359,7 @@ function renderResumo() {
                     </div>
                     <div class="equip-card-tipo">${eq ? (eq.nome + (eq.tipo ? ' · ' + eq.tipo : '')) : '<em style="color:#94a3b8">Sem cadastro</em>'}</div>
                 </div>
-                ${eq ? `<button class="btn btn-small btn-secondary" onclick="editarEquipamento(${eq.id})" title="Editar">✏️</button>` : `<button class="btn btn-small" onclick="novoParaNumero('${num}')" title="Cadastrar">➕</button>`}
+                ${eq ? `<button class="btn btn-small btn-secondary" onclick="event.stopPropagation();editarEquipamento(${eq.id})" title="Editar">✏️</button>` : `<button class="btn btn-small" onclick="event.stopPropagation();novoParaNumero('${num}')" title="Cadastrar">➕</button>`}
             </div>
             ${eq ? `<div class="equip-card-body">
                 <div class="equip-field"><span class="equip-field-label">Nº Série</span><span class="equip-field-value">${eq.numero_serie || '–'}</span></div>
@@ -508,6 +509,99 @@ function showAlert(containerId, msg, type) {
     el.innerHTML = `<div class="alert alert-${type} show">${msg}</div>`;
     setTimeout(() => { el.innerHTML = ''; }, 4000);
 }
+
+// ── MODAL PROBLEMAS POR DATA ──
+const PERGUNTAS_EQ = {
+    q1:'Há vazamentos visíveis de água ou óleo?',
+    q2:'A cabine está limpa e sem acúmulo de sujeira ou óleo?',
+    q3:'A corrente da torre possui folgas ou ruídos anormais?',
+    q4:'Há ruídos anormais durante o funcionamento da máquina?',
+    q5:'A estrutura da torre, mastro e garfos apresenta rachaduras, empenos ou soldas quebradas?',
+    q6:'A bateria possui carga o suficiente?',
+    q7:'A bateria está com o nível de água normal?',
+    q8:'Os cabos e terminais da bateria estão limpos e firmes?',
+    q9:'O sinal sonoro (buzina) funciona corretamente?',
+    q10:'As luzes estão funcionando?',
+    q11:'O alarme de ré funciona?',
+    q12:'O sistema de elevação e inclinação está funcionando normalmente?',
+    q13:'Há vazamentos no chão, mangueiras ou cilindros?',
+    q14:'As rodas estão firmes e seguras?',
+    q15:'As rodas estão boas? (sem cortes, desgastadas ou danificadas)',
+    q16:'O freio de serviço está eficiente?',
+    q17:'O freio de estacionamento funciona normalmente?',
+    q18:'A direção está leve e sem folgas?'
+};
+const PROB_SIM_EQ = new Set(['q1','q3','q4','q5','q13']);
+const PROB_NAO_EQ = new Set(['q2','q6','q7','q8','q9','q10','q11','q12','q14','q15','q16','q17','q18']);
+
+function isProblemaEq(key, value) {
+    if (PROB_SIM_EQ.has(key) && value === 'Sim') return true;
+    if (PROB_NAO_EQ.has(key) && value === 'Não') return true;
+    return false;
+}
+
+async function verProblemasMaquina(num) {
+    const eq = allEquipamentos.find(e => String(e.numero) === String(num));
+    const nome = eq ? eq.nome : `Máq. ${num}`;
+    document.getElementById('modalProblemasTitle').textContent = `⚠️ Problemas — ${nome} (#${num})`;
+
+    const body = document.getElementById('modalProblemasBody');
+    body.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8">Carregando…</div>';
+    document.getElementById('modalProblemas').classList.add('active');
+
+    const registros = allChecklists.filter(c => String(c.numero_maquina) === String(num) && (c.total_problemas || 0) > 0);
+
+    if (!registros.length) {
+        body.innerHTML = '<div style="text-align:center;padding:32px;color:#10b981;font-size:15px">✅ Nenhum problema registrado para esta máquina.</div>';
+        return;
+    }
+
+    body.innerHTML = registros.map(r => {
+        const dt = r.data
+            ? new Date(r.data + 'T00:00:00').toLocaleDateString('pt-BR')
+            : new Date(r.created_at).toLocaleDateString('pt-BR');
+        const problemas = r.respostas
+            ? Object.entries(r.respostas).filter(([k, v]) => isProblemaEq(k, v))
+            : [];
+        const probHtml = problemas.length
+            ? problemas.map(([k, v]) => `<li style="margin-bottom:4px"><span style="font-weight:600;color:#ef4444">${PERGUNTAS_EQ[k] || k}</span> <span style="color:#94a3b8;font-size:12px">(Resp: ${v})</span></li>`).join('')
+            : '<li style="color:#94a3b8">Detalhes não disponíveis</li>';
+        const op = r.operador ? `<span style="font-size:12px;color:#64748b;margin-left:8px">👷 ${r.operador}</span>` : '';
+        const hr = r.horimetro ? `<span style="font-size:12px;color:#64748b;margin-left:8px">⏱️ ${r.horimetro}h</span>` : '';
+        return `<div style="border:1px solid #fde68a;background:#fffbeb;border-radius:10px;padding:14px 16px;margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+                <span style="font-weight:700;font-size:14px;color:#1e293b">📅 ${dt}</span>
+                ${op}${hr}
+                <span style="margin-left:auto;background:#fee2e2;color:#991b1b;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:700">${r.total_problemas} problema(s)</span>
+            </div>
+            <ul style="margin:0;padding-left:18px;font-size:13px;color:#334155">${probHtml}</ul>
+        </div>`;
+    }).join('');
+}
+
+function fecharModalProblemas() {
+    document.getElementById('modalProblemas').classList.remove('active');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.modal').forEach(m => {
+        m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+    });
+});
 </script>
+
+<!-- MODAL PROBLEMAS POR DATA -->
+<div class="modal" id="modalProblemas">
+    <div class="modal-content" style="max-width:600px">
+        <div class="modal-header">
+            <h2 id="modalProblemasTitle">⚠️ Problemas Encontrados</h2>
+            <button class="modal-close" onclick="fecharModalProblemas()">×</button>
+        </div>
+        <div id="modalProblemasBody" style="max-height:65vh;overflow-y:auto;padding:4px 2px"></div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="fecharModalProblemas()">Fechar</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

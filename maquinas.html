@@ -144,32 +144,30 @@
             box-shadow: 0 0 0 3px rgba(99,102,241,.1);
         }
 
-        /* Modal */
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; padding:16px; }
-        .modal.open { display:flex; }
-        .modal-box { background:white; border-radius:16px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; }
-        .modal-head {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 24px 0;
-        }
-        .modal-head h2 { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
-        .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:#64748b; padding:0; }
-        .modal-body { padding: 20px 24px; }
-        .modal-foot { padding: 16px 24px 20px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid #f1f5f9; }
-
-        .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; margin-bottom: 16px; display: none; }
-        .alert.ok  { background:#dcfce7; color:#166534; display:block; }
-        .alert.err { background:#fee2e2; color:#991b1b; display:block; }
 
         .empty-state { text-align:center; padding: 48px 20px; color:#94a3b8; }
         .empty-state .icon { font-size:48px; margin-bottom:12px; }
 
-        .btn { padding:10px 20px; background:#0f172a; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
-        .btn:hover { background:#1e293b; }
-        .btn-secondary { background:#f1f5f9; color:#374151; }
-        .btn-secondary:hover { background:#e2e8f0; }
-        .btn-hero { padding:10px 22px; background:white; color:#0f172a; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
-        .btn-hero:hover { background:#f1f5f9; }
+        @media(max-width:768px){ .main { padding: 16px 12px; } .hero-strip { padding: 18px 16px !important; } }
+
+        /* Status operacional badges */
+        .status-op-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .status-op-operando { background:#dcfce7; color:#166534; }
+        .status-op-revisao  { background:#fef9c3; color:#854d0e; }
+        .status-op-parada   { background:#fee2e2; color:#991b1b; }
+
+        /* Manutenção modal styles */
+        .pecas-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:4px; }
+        @media(max-width:480px){ .pecas-grid { grid-template-columns:1fr; } }
+        .peca-check-label { display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 10px; border:1px solid #e2e8f0; border-radius:7px; cursor:pointer; transition:background .15s; }
+        .peca-check-label:hover { background:#f8fafc; }
+        .peca-check-label input { margin:0; cursor:pointer; }
+        .peca-grupo-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#64748b; margin:14px 0 6px; border-bottom:1px solid #f1f5f9; padding-bottom:4px; }
+        .status-radio-wrap { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+        .status-radio-label { display:flex; align-items:center; gap:6px; font-size:13px; padding:8px 14px; border:2px solid #e2e8f0; border-radius:8px; cursor:pointer; transition:all .15s; }
+        .status-radio-label input { margin:0; cursor:pointer; }
+        .status-radio-label:has(input:checked) { border-color:#6366f1; background:#f0f0ff; }
+        .btn-manut { background:#f0f0ff; color:#4f46e5; }
     </style>
 </head>
 <body>
@@ -239,6 +237,8 @@
         <div class="stat-card"><div class="stat-number" id="statTotal">–</div><div class="stat-label">Total</div></div>
         <div class="stat-card"><div class="stat-number" id="statAtivas" style="color:#10b981">–</div><div class="stat-label">Ativas</div></div>
         <div class="stat-card"><div class="stat-number" id="statInativas" style="color:#ef4444">–</div><div class="stat-label">Inativas</div></div>
+        <div class="stat-card"><div class="stat-number" id="statRevisao" style="color:#d97706">–</div><div class="stat-label">Em Revisão</div></div>
+        <div class="stat-card"><div class="stat-number" id="statParada" style="color:#ef4444">–</div><div class="stat-label">Paradas</div></div>
     </div>
 
     <!-- LISTA -->
@@ -266,53 +266,86 @@
 
 <!-- MODAL NOVA / EDITAR -->
 <div class="modal" id="modalForm">
-    <div class="modal-box">
-        <div class="modal-head">
+    <div class="modal-content" style="max-width:520px">
+        <div class="modal-header">
             <h2 id="modalTitle">➕ Nova Máquina</h2>
             <button class="modal-close" onclick="fecharModal()">×</button>
         </div>
-        <div class="modal-body">
-            <div id="alertForm" class="alert"></div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Código / Número *</label>
-                    <input id="f_codigo" placeholder="Ex: EMP-01, M-12, 003" maxlength="30">
-                    <small style="color:#64748b;font-size:12px;">Identificador único (ex: EMP-01)</small>
-                </div>
-                <div class="form-group">
-                    <label>Nome / Descrição *</label>
-                    <input id="f_nome" placeholder="Ex: Empilhadeira 01">
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="f_ativo">
-                        <option value="true">Ativa</option>
-                        <option value="false">Inativa</option>
-                    </select>
-                </div>
+        <div id="alertForm" class="alert"></div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Código / Número *</label>
+                <input id="f_codigo" placeholder="Ex: EMP-01, M-12, 003" maxlength="30">
+                <small style="color:#94a3b8;font-size:12px;">Identificador único (ex: EMP-01)</small>
+            </div>
+            <div class="form-group">
+                <label>Nome / Descrição *</label>
+                <input id="f_nome" placeholder="Ex: Empilhadeira 01">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="f_ativo">
+                    <option value="true">Ativa</option>
+                    <option value="false">Inativa</option>
+                </select>
             </div>
         </div>
-        <div class="modal-foot">
+        <div class="modal-footer">
             <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
             <button class="btn" id="btnSalvar" onclick="salvarMaquina()">💾 Salvar</button>
         </div>
     </div>
 </div>
 
+<!-- MODAL MANUTENÇÃO -->
+<div class="modal" id="modalManutencao">
+    <div class="modal-content" style="max-width:640px">
+        <div class="modal-header">
+            <h2 id="manutTitle">🔩 Manutenção</h2>
+            <button class="modal-close" onclick="fecharModalManutencao()">×</button>
+        </div>
+        <div id="alertManut" class="alert"></div>
+        <div style="max-height:70vh;overflow-y:auto;padding:2px 4px">
+
+            <div class="form-group">
+                <label>Status Operacional</label>
+                <div class="status-radio-wrap">
+                    <label class="status-radio-label"><input type="radio" name="statusOp" value="operando"> ✓ Operando</label>
+                    <label class="status-radio-label"><input type="radio" name="statusOp" value="revisao"> 🔧 Em Revisão</label>
+                    <label class="status-radio-label"><input type="radio" name="statusOp" value="parada"> ⛔ Parada para Manutenção</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Peças para Trocar</label>
+                <div id="pecasContainer"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Observações</label>
+                <textarea id="manutObs" rows="3" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical" placeholder="Descreva o problema, serviço necessário, etc."></textarea>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="fecharModalManutencao()">Cancelar</button>
+            <button class="btn" id="btnSalvarManut" onclick="salvarManutencao()">💾 Salvar</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL CONFIRMAR EXCLUSÃO -->
 <div class="modal" id="modalDel">
-    <div class="modal-box" style="max-width:380px">
-        <div class="modal-head">
+    <div class="modal-content" style="max-width:400px">
+        <div class="modal-header">
             <h2>⚠️ Excluir Máquina</h2>
             <button class="modal-close" onclick="fecharModalDel()">×</button>
         </div>
-        <div class="modal-body">
-            <p>Tem certeza que deseja excluir a máquina <strong id="delNome"></strong>?</p>
-            <p style="font-size:13px;color:#64748b;">Esta ação não pode ser desfeita.</p>
-        </div>
-        <div class="modal-foot">
+        <p style="margin:0 0 8px">Tem certeza que deseja excluir a máquina <strong id="delNome"></strong>?</p>
+        <p style="font-size:13px;color:#64748b;margin:0">Esta ação não pode ser desfeita.</p>
+        <div class="modal-footer">
             <button class="btn btn-secondary" onclick="fecharModalDel()">Cancelar</button>
-            <button class="btn" style="background:#ef4444" onclick="confirmarExclusao()">🗑️ Excluir</button>
+            <button class="btn btn-danger" onclick="confirmarExclusao()">🗑️ Excluir</button>
         </div>
     </div>
 </div>
@@ -324,7 +357,15 @@ const SUPABASE_URL = 'https://wcfrwsgnxochxvwhxnvy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZnJ3c2dueG9jaHh2d2h4bnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MzExMDgsImV4cCI6MjA4MzIwNzEwOH0.Yb4cT5chXp3S8NZaWbLpv436HzxGCO7CZTruPpOPDdU';
 
 let db, currentUser;
-let allMaquinas = [], editingId = null, deleteTargetId = null;
+let allMaquinas = [], editingId = null, deleteTargetId = null, manutencaoId = null;
+
+const PECAS = [
+    { grupo: '🔧 Motor e Alimentação', itens: ['Motor (combustão GLP/Diesel ou elétrico)','Bateria Tracionária e Carregadores','Filtros (óleo, combustível, ar e hidráulico)','Alternador e Motor de Partida','Correias e Polias'] },
+    { grupo: '🦾 Sistema Hidráulico', itens: ['Bomba Hidráulica','Comandos Hidráulicos (Alavancas)','Cilindros de Elevação e Inclinação','Mangueiras e Conexões Hidráulicas','Motor de Elevação / Válvulas de Retenção'] },
+    { grupo: '🏗️ Torre e Garfos', itens: ['Mastro (Torre de Elevação)','Carro Porta-Garfos','Garfos','Correntes de Elevação e Roldanas','Deslocamento Lateral (Side Shift)'] },
+    { grupo: '🛑 Freios e Rodagem', itens: ['Pneus e Rodas','Sistema de Freios (cilindro mestre, lonas, tambor, cilindro de roda)','Eixo Direcional','Rolamentos e Cubos de Roda'] },
+    { grupo: '💺 Cabine e Elétrica', itens: ['Assento (Banco) do Operador','Painel de Monitoramento (Display)','Pedais (acelerador, freio, pedal de presença)','Coluna de Direção e Volante','Faróis, Lanternas e Sinalizadores (Giroflex)'] }
+];
 
 /* ── BOOT ── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -338,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     setupSidebar();
     setupBusca();
+    buildPecasContainer();
     loadMaquinas();
     window.notifInit?.();
     window.pushInit?.();
@@ -363,6 +405,23 @@ function setupSidebar() {
     });
 }
 
+/* ── PEÇAS ── */
+function buildPecasContainer() {
+    const el = document.getElementById('pecasContainer');
+    if (!el) return;
+    el.innerHTML = PECAS.map(grupo => `
+        <div class="peca-grupo-title">${grupo.grupo}</div>
+        <div class="pecas-grid">
+            ${grupo.itens.map(item => `
+                <label class="peca-check-label">
+                    <input type="checkbox" class="peca-checkbox" value="${esc(item)}">
+                    <span>${esc(item)}</span>
+                </label>
+            `).join('')}
+        </div>
+    `).join('');
+}
+
 /* ── BUSCA ── */
 function setupBusca() {
     document.getElementById('searchInput').addEventListener('input', renderTabela);
@@ -384,9 +443,20 @@ async function loadMaquinas() {
 function atualizarStats() {
     const ativas   = allMaquinas.filter(m => m.ativo !== false).length;
     const inativas = allMaquinas.filter(m => m.ativo === false).length;
-    document.getElementById('statTotal').textContent   = allMaquinas.length;
-    document.getElementById('statAtivas').textContent  = ativas;
+    const revisao  = allMaquinas.filter(m => m.status_op === 'revisao').length;
+    const parada   = allMaquinas.filter(m => m.status_op === 'parada').length;
+    document.getElementById('statTotal').textContent    = allMaquinas.length;
+    document.getElementById('statAtivas').textContent   = ativas;
     document.getElementById('statInativas').textContent = inativas;
+    document.getElementById('statRevisao').textContent  = revisao;
+    document.getElementById('statParada').textContent   = parada;
+}
+
+function renderStatusOp(m) {
+    const s = m.status_op || 'operando';
+    if (s === 'revisao') return '<span class="status-op-badge status-op-revisao">🔧 Em Revisão</span>';
+    if (s === 'parada')  return '<span class="status-op-badge status-op-parada">⛔ Parada</span>';
+    return '<span class="status-op-badge status-op-operando">✓ Operando</span>';
 }
 
 function renderTabela() {
@@ -406,42 +476,52 @@ function renderTabela() {
         return;
     }
 
-    container.innerHTML = `
-        <table class="maq-table">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nome / Descrição</th>
-                    <th>Status</th>
-                    <th>Criado em</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+    if (window.innerWidth <= 768) {
+        container.innerHTML = lista.map(m => `<div class="cl-card">
+            <div class="cl-card-top">
+                <span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span>
+                ${renderStatusOp(m)}
+                <span class="cl-card-date">${formatarData(m.created_at)}</span>
+            </div>
+            <div class="cl-card-name">${esc(m.nome || '–')}</div>
+            <div class="cl-card-sub"><span class="badge-codigo">${esc(m.codigo)}</span></div>
+            <div class="cl-card-actions">
+                <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+                <button class="btn-action btn-manut" onclick="abrirModalManutencao('${m.id}')">🔩 Manutenção</button>
+                <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
+                    ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
+                </button>
+                <button class="btn-action btn-del" onclick="pedirExclusao('${m.id}', '${esc(m.codigo)}')">🗑️</button>
+            </div>
+        </div>`).join('');
+        return;
+    }
+
+    container.innerHTML = `<div class="table-container">
+        <table class="maq-table" style="min-width:0">
+            <thead><tr>
+                <th>Código</th><th>Nome / Descrição</th><th>Status</th><th>Op. Status</th><th>Criado em</th><th>Ações</th>
+            </tr></thead>
             <tbody>
                 ${lista.map(m => `
                     <tr>
                         <td><span class="badge-codigo">${esc(m.codigo)}</span></td>
                         <td>${esc(m.nome || '–')}</td>
-                        <td>
-                            <span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">
-                                ${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}
-                            </span>
-                        </td>
+                        <td><span class="${m.ativo !== false ? 'badge-ativo' : 'badge-inativo'}">${m.ativo !== false ? '✓ Ativa' : '✗ Inativa'}</span></td>
+                        <td>${renderStatusOp(m)}</td>
                         <td>${formatarData(m.created_at)}</td>
-                        <td>
-                            <div class="actions-cell">
-                                <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
-                                <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}"
-                                        onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
-                                    ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
-                                </button>
-                                <button class="btn-action btn-del" onclick="pedirExclusao('${m.id}', '${esc(m.codigo)}')">🗑️</button>
-                            </div>
-                        </td>
+                        <td><div class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editarMaquina('${m.id}')">✏️ Editar</button>
+                            <button class="btn-action btn-manut" onclick="abrirModalManutencao('${m.id}')">🔩 Manutenção</button>
+                            <button class="btn-action ${m.ativo !== false ? 'btn-toggle-inativo' : 'btn-toggle-ativo'}" onclick="toggleAtivo('${m.id}', ${m.ativo !== false})">
+                                ${m.ativo !== false ? '⊘ Inativar' : '✓ Ativar'}
+                            </button>
+                            <button class="btn-action btn-del" onclick="pedirExclusao('${m.id}', '${esc(m.codigo)}')">🗑️</button>
+                        </div></td>
                     </tr>
                 `).join('')}
             </tbody>
-        </table>`;
+        </table></div>`;
 }
 
 /* ── NOVA MÁQUINA ── */
@@ -453,7 +533,7 @@ function abrirModalNova() {
     document.getElementById('f_ativo').value  = 'true';
     document.getElementById('f_codigo').disabled = false;
     hideAlert('alertForm');
-    document.getElementById('modalForm').classList.add('open');
+    document.getElementById('modalForm').classList.add('active');
 }
 
 /* ── EDITAR ── */
@@ -467,7 +547,7 @@ function editarMaquina(id) {
     document.getElementById('f_ativo').value  = String(m.ativo !== false);
     document.getElementById('f_codigo').disabled = true;
     hideAlert('alertForm');
-    document.getElementById('modalForm').classList.add('open');
+    document.getElementById('modalForm').classList.add('active');
 }
 
 /* ── SALVAR ── */
@@ -518,7 +598,7 @@ async function toggleAtivo(id, atualAtivo) {
 function pedirExclusao(id, codigo) {
     deleteTargetId = id;
     document.getElementById('delNome').textContent = codigo;
-    document.getElementById('modalDel').classList.add('open');
+    document.getElementById('modalDel').classList.add('active');
 }
 
 async function confirmarExclusao() {
@@ -529,11 +609,65 @@ async function confirmarExclusao() {
 }
 
 /* ── MODAIS ── */
-function fecharModal()    { document.getElementById('modalForm').classList.remove('open'); }
-function fecharModalDel() { document.getElementById('modalDel').classList.remove('open'); }
+function fecharModal()    { document.getElementById('modalForm').classList.remove('active'); }
+function fecharModalDel() { document.getElementById('modalDel').classList.remove('active'); }
+
+/* ── MODAL MANUTENÇÃO ── */
+function abrirModalManutencao(id) {
+    const m = allMaquinas.find(x => x.id === id);
+    if (!m) return;
+    manutencaoId = id;
+    document.getElementById('manutTitle').textContent = `🔩 Manutenção — ${m.nome} (${m.codigo})`;
+
+    // Status operacional
+    const statusAtual = m.status_op || 'operando';
+    document.querySelectorAll('input[name="statusOp"]').forEach(r => {
+        r.checked = r.value === statusAtual;
+    });
+
+    // Peças para trocar
+    const pecasSalvas = Array.isArray(m.pecas_trocar) ? m.pecas_trocar : [];
+    document.querySelectorAll('.peca-checkbox').forEach(cb => {
+        cb.checked = pecasSalvas.includes(cb.value);
+    });
+
+    // Observações
+    document.getElementById('manutObs').value = m.obs_manutencao || '';
+
+    hideAlert('alertManut');
+    document.getElementById('modalManutencao').classList.add('active');
+}
+
+function fecharModalManutencao() {
+    document.getElementById('modalManutencao').classList.remove('active');
+}
+
+async function salvarManutencao() {
+    const statusOp = document.querySelector('input[name="statusOp"]:checked')?.value || 'operando';
+    const pecasTrocar = [...document.querySelectorAll('.peca-checkbox:checked')].map(cb => cb.value);
+    const obsManutencao = document.getElementById('manutObs').value.trim();
+
+    const btn = document.getElementById('btnSalvarManut');
+    btn.disabled = true;
+    btn.textContent = '⏳ Salvando...';
+
+    const { error } = await db.from('maquinas')
+        .update({ status_op: statusOp, pecas_trocar: pecasTrocar, obs_manutencao: obsManutencao, updated_at: new Date().toISOString() })
+        .eq('id', manutencaoId);
+
+    btn.disabled = false;
+    btn.textContent = '💾 Salvar';
+
+    if (error) {
+        showAlert('alertManut', 'Erro ao salvar: ' + error.message, 'err');
+        return;
+    }
+    fecharModalManutencao();
+    await loadMaquinas();
+}
 
 document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
 });
 
 /* ── HELPERS ── */
@@ -546,7 +680,7 @@ function formatarData(iso) {
 function showAlert(id, msg, tipo) {
     const el = document.getElementById(id);
     el.textContent = msg;
-    el.className = 'alert ' + tipo;
+    el.className = 'alert ' + (tipo === 'err' ? 'alert-error' : 'alert-success') + ' show';
 }
 function hideAlert(id) {
     const el = document.getElementById(id);
